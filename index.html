@@ -25,7 +25,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('img1.jpg'); /* Verifique se sua imagem está aqui */
+            background-image: url('img1.jpg'); /* Certifique-se que a imagem está na pasta */
             background-size: cover;
             background-position: center;
             filter: brightness(0.3) contrast(1.2) blur(2px);
@@ -172,52 +172,49 @@
     const statusMsg = document.getElementById('status-msg');
     const audioPlayer = document.getElementById('narracao');
     const gameContainer = document.getElementById('game-container');
+    
+    let gameStarted = false;
 
     btnStartAudio.addEventListener('click', function() {
         statusMsg.innerText = "Carregando áudio...";
         statusMsg.style.color = "#FFEB3B";
 
-        // Tenta tocar
         const playPromise = audioPlayer.play();
 
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                // Sucesso: Áudio tocando
                 btnStartAudio.style.display = 'none';
                 document.getElementById('btn-skip').style.display = 'none';
                 statusMsg.innerText = "📡 Reproduzindo transmissão...";
                 statusMsg.style.color = "#4CAF50";
             })
             .catch(error => {
-                // Erro: Arquivo não encontrado ou bloqueado
                 console.error("Erro no áudio:", error);
                 alert("ERRO: Não foi possível tocar o áudio 'audio.mp3'.\n\nMotivo: O arquivo pode não estar na pasta ou o nome está errado.\n\nIniciando o jogo sem áudio...");
-                startGame(true); // Força o início imediato
+                startGame(true); 
             });
         }
     });
 
-    // Quando o áudio acabar, começa o jogo
     audioPlayer.addEventListener('ended', function() {
         startGame(false);
     });
 
-    // Se der erro no carregamento do arquivo (ex: nome errado)
     audioPlayer.addEventListener('error', function(e) {
         console.log("Arquivo de áudio não encontrado.");
     });
 
     function startGame(forceImmediate) {
-        // Se for forçado (erro), esconde rápido. Se for normal, faz transição suave.
-        const delay = forceImmediate ? 0 : 1000;
+        if (gameStarted) return;
+        gameStarted = true;
 
+        const delay = forceImmediate ? 0 : 1000;
         introOverlay.style.opacity = '0';
         
         setTimeout(() => {
             introOverlay.style.display = 'none';
             gameContainer.style.display = 'flex';
             
-            // Animação de entrada do jogo
             setTimeout(() => {
                 gameContainer.style.opacity = '1';
                 gameContainer.style.animation = 'fadeIn 1s ease-out';
@@ -226,20 +223,10 @@
         }, delay);
     }
 
-    Entendi perfeitamente, Renan. O problema é que, ao acertar uma fase, eu misturei o "Elogio do Acerto" junto com a "Próxima Pergunta" na mesma tela.
-
-Quando você erra e clica em "Tentar Novamente", o sistema te joga para essa tela mista, e você vê o elogio "ACERTO: Decisão Correta..." de novo, o que faz parecer que você está na tela de resposta (gabarito), e não na tela de pergunta.
-
-A Solução: Criei "Telas de Retorno" neutras. Agora, quando você clica em "Tentar Novamente", ele vai para uma versão da pergunta que só tem a pergunta, sem o elogio da fase anterior.
-
-Substitua todo o bloco const story = { ... }; por este código corrigido abaixo:
-
-JavaScript
-
-    // --- MOTOR DO JOGO (Lógica Corrigida com Telas de Retorno) ---
+    // --- MOTOR DO JOGO COM LÓGICA CORRIGIDA ---
     const story = {
         
-        // --- CENA 1: O INÍCIO ---
+        // --- CENA 1 ---
         "start": {
             text: "[06:05] CONEXÃO ESTABELECIDA COM POSTO DE COMANDO...\n\nO deslizamento acabou de acontecer. A repórter confirmou o caos local. Você é o Coordenador Médico.\n\nRecursos limitados. Vidas em risco.\n\nSua primeira decisão definirá toda a operação. Qual sua prioridade?",
             choices: [
@@ -255,9 +242,8 @@ JavaScript
             ]
         },
 
-        // --- CENA 2: ALOCAÇÃO DE RECURSOS ---
+        // --- CENA 2 ---
         "fase_2": {
-            // Texto com elogio (Aparece quando vem da Fase 1)
             text: "Decisão correta. Do Posto de Comando, você recebe o balanço:\n- 10 equipes médicas disponíveis.\n- Emergência: Múltiplos feridos na lama.\n- Prevenção: 200 desalojados em abrigos precários.\n\nComo você aloca sua equipe?",
             feedback: { type: "success", msg: "ACERTO: O papel do coordenador é gerenciar recursos." },
             choices: [
@@ -266,7 +252,7 @@ JavaScript
             ]
         },
         "retry_fase_2": {
-            // Texto NEUTRO (Aparece quando clica em Tentar Novamente) - Sem elogios
+            // TELA NEUTRA DE RETENTATIVA
             text: "[07:00] Voltando à decisão de alocação...\n\nTemos 10 equipes, muitos feridos na lama e 200 desalojados em abrigos.\n\nComo você aloca a equipe?",
             choices: [
                 { text: "A - 100% das equipes para a Zona de Impacto", target: "erro_prevencao" },
@@ -277,12 +263,12 @@ JavaScript
             text: "[18:00] 12 horas se passam. O atendimento aos feridos foi ótimo, mas um surto de vômito e diarreia explodiu nos abrigos (Hepatite A/Cólera).",
             feedback: { type: "error", msg: "FALHA NA PREVENÇÃO: Você ignorou os abrigos e criou uma segunda crise." },
             choices: [
-                { text: "Tentar Novamente", target: "retry_fase_2" }, // Vai para a tela neutra
+                { text: "Tentar Novamente", target: "retry_fase_2" },
                 { text: "Reiniciar do Zero", target: "start" }
             ]
         },
 
-        // --- CENA 3: SAÚDE PÚBLICA ---
+        // --- CENA 3 ---
         "fase_3": {
             text: "[10:00] A equipe de avaliação (30%) retorna com ALERTA VERMELHO:\n\n1. Abrigo Escola: Água parada e lama (Risco Leptospirose).\n2. Abrigo Ginásio: Superlotação e tosse (Risco Respiratório).\n\nQual sua prioridade de Saúde Pública?",
             feedback: { type: "success", msg: "ACERTO: Dividir a equipe permitiu detectar os riscos a tempo." },
@@ -293,6 +279,7 @@ JavaScript
             ]
         },
         "retry_fase_3": {
+            // TELA NEUTRA DE RETENTATIVA
             text: "[10:00] Reavaliando a estratégia sanitária...\n\nTemos risco de Leptospirose (água parada) e Respiratório (superlotação).\n\nQual sua prioridade?",
             choices: [
                 { text: "A - Atacar a Leptospirose (Profilaxia)", target: "erro_clinico" },
@@ -304,12 +291,12 @@ JavaScript
             text: "Você envia insumos médicos. Mas a lama continua lá e a superlotação também.\n\nVocê está enxugando gelo tratando apenas o sintoma.",
             feedback: { type: "error", msg: "ERRO DE VISÃO: Sem resolver a infraestrutura (Causa Raiz), o remédio não resolve." },
             choices: [
-                { text: "Tentar Novamente", target: "retry_fase_3" }, // Vai para a tela neutra
+                { text: "Tentar Novamente", target: "retry_fase_3" },
                 { text: "Reiniciar do Zero", target: "start" }
             ]
         },
 
-        // --- CENA 4: COMUNICAÇÃO ---
+        // --- CENA 4 ---
         "fase_4": {
             text: "[11:00] Você tenta contatar a Defesa Civil para pedir água potável e espaço.\n\nO rádio está mudo. \"Dificuldades de comunicação\", como previsto no cenário.\n\nO que você faz?",
             feedback: { type: "success", msg: "ACERTO: Você identificou que o problema é infraestrutura, não apenas remédio." },
@@ -319,6 +306,7 @@ JavaScript
             ]
         },
         "retry_fase_4": {
+            // TELA NEUTRA DE RETENTATIVA
             text: "[11:00] O rádio continua mudo e a Defesa Civil não responde seus chamados.\n\nO tempo está correndo.\n\nO que você faz?",
             choices: [
                 { text: "A - Insistir nos canais oficiais (Protocolo)", target: "erro_burocracia" },
@@ -329,7 +317,7 @@ JavaScript
             text: "Você perde 3 horas tentando usar o rádio. Ninguém responde. A janela de oportunidade se fecha e os primeiros casos de febre aparecem.",
             feedback: { type: "error", msg: "FALHA DE ARTICULAÇÃO: Em desastres, a burocracia colapsa. Esperar é fatal." },
             choices: [
-                { text: "Tentar Novamente", target: "retry_fase_4" }, // Vai para a tela neutra
+                { text: "Tentar Novamente", target: "retry_fase_4" },
                 { text: "Reiniciar do Zero", target: "start" }
             ]
         },
