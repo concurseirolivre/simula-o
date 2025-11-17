@@ -1,269 +1,297 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1" name="viewport">
-<title>Simulação ATS - Crise em Petrópolis</title>
-<style>
-    /* --- TEMA: SALA DE SITUAÇÃO (CRISE EM PETRÓPOLIS) --- */
-    body {
-        background-color: #000;
-        margin: 0;
-        height: 100%;
-        overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação ATS - Grupo 5</title>
+    <style>
+        /* --- CONFIGURAÇÃO GERAL E TEMA --- */
+        body {
+            background-color: #050505;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace; /* Estilo Terminal */
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    tw-story {
-        /* IMAGEM DE FUNDO: Neblina na serra */
-        background-image: 
-            linear-gradient(rgba(20, 20, 20, 0.92), rgba(20, 20, 20, 0.92)), 
-            url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80');
-        background-size: cover;
-        background-attachment: fixed;
-        font-family: 'Courier New', 'Courier', 'Lucida Console', monospace; /* Estilo Terminal */
-        color: #e0e0e0;
-        padding: 5% 20%;
-        font-size: 1.2em;
-        line-height: 1.6;
-    }
+        /* Imagem de Fundo com Filtro Escuro */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1542326093-8a744d586752?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); /* Imagem genérica de chuva/desastre */
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.3) contrast(1.2) blur(2px);
+            z-index: -1;
+        }
 
-    tw-passage {
-        /* PAINEL DE CONTROLE */
-        background-color: rgba(30, 30, 30, 0.85);
-        border: 1px solid #555;
-        border-radius: 8px;
-        padding: 30px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.8);
-        min-height: 300px;
-    }
+        /* O "Monitor" da Sala de Situação */
+        #game-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: rgba(20, 20, 20, 0.95);
+            border: 1px solid #444;
+            border-left: 5px solid #d32f2f; /* Faixa vermelha de emergência */
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: slideUp 0.5s ease-out;
+        }
 
-    /* Títulos e Alertas */
-    h1, strong {
-        color: #ff3d00; /* Laranja/Vermelho Alerta */
-        text-shadow: 0 0 5px rgba(255, 61, 0, 0.5);
-    }
+        /* Cabeçalho */
+        .header {
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #888;
+        }
+        .status-blink {
+            color: #d32f2f;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
 
-    /* Links (Botões de Decisão) */
-    tw-link {
-        color: #FFEB3B; /* Amarelo Alerta */
-        font-weight: bold;
-        text-decoration: none;
-        border-bottom: 2px dashed rgba(255, 235, 59, 0.3);
-        transition: all 0.2s ease;
-        cursor: pointer;
-        display: inline-block;
-        margin-top: 10px;
-    }
+        /* Texto da História */
+        #story-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            white-space: pre-wrap; /* Respeita quebras de linha */
+            min-height: 150px;
+        }
 
-    tw-link:hover {
-        background-color: #FFEB3B;
-        color: #000;
-        padding: 2px 8px;
-        border-radius: 4px;
-        box-shadow: 0 0 10px #FFEB3B;
-        text-decoration: none;
-        border-bottom: none;
-    }
+        /* Feedback Visual (Médico Feliz/Triste) */
+        #feedback-area {
+            margin: 20px 0;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            display: none; /* Escondido por padrão */
+        }
+        .feedback-success {
+            background-color: rgba(46, 125, 50, 0.2);
+            border: 1px solid #2e7d32;
+            color: #81c784;
+        }
+        .feedback-error {
+            background-color: rgba(198, 40, 40, 0.2);
+            border: 1px solid #c62828;
+            color: #e57373;
+        }
 
-    /* Efeito de Digitação (Typewriter) */
-    .typewriter {
-        overflow: hidden;
-        white-space: pre-wrap;
-        animation: typing 2s steps(40, end);
-    }
+        /* Botões de Escolha */
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            opacity: 0; /* Começa invisível para efeito fade-in */
+            transition: opacity 1s;
+        }
+        .btn {
+            background: transparent;
+            border: 1px dashed #FFEB3B;
+            color: #FFEB3B;
+            padding: 15px;
+            text-align: left;
+            font-family: inherit;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background-color: #FFEB3B;
+            color: #000;
+            border-style: solid;
+            transform: translateX(5px);
+        }
 
-    /* Animações Básicas do Twine */
-    @keyframes appear{0%{opacity:0}to{opacity:1}}
-    @keyframes fade-in-out{0%,to{opacity:0}50%{opacity:1}}
-    @keyframes pulse{0%{transform:scale(0, 0)}20%{transform:scale(1.2, 1.2)}40%{transform:scale(0.9, 0.9)}60%{transform:scale(1.05, 1.05)}80%{transform:scale(0.925, 0.925)}to{transform:scale(1, 1)}}
-    
-    /* Cursor piscando estilo terminal */
-    tw-passage::after {
-        content: " █";
-        animation: blink 1s infinite;
-        color: #0f0;
-    }
-    @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-</style>
+        /* Animações */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* Cursor de digitação */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1em;
+            background-color: #0f0;
+            animation: blink 1s infinite;
+            vertical-align: bottom;
+        }
+
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
 
-<tw-storydata name="Simulação ATS" startnode="1" creator="Twine" creator-version="2.3.14" format="Harlowe" format-version="3.1.0" ifid="8A8DCE8C-7C5A-410A-A079-71FC34DE42CA" options="" tags="" zoom="1" hidden>
+    <div class="background"></div>
+
+    <div id="game-container">
+        <div class="header">
+            <span>SALA DE SITUAÇÃO: GRUPO 5</span>
+            <span class="status-blink">● AO VIVO - PETRÓPOLIS</span>
+        </div>
+
+        <div id="text-container">
+            <span id="story-text"></span><span class="cursor"></span>
+        </div>
+
+        <div id="feedback-area"></div>
+
+        <div id="choices-container" class="choices"></div>
+    </div>
+
+<script>
+    // --- DADOS DA SIMULAÇÃO (O Roteiro) ---
+    const story = {
+        "start": {
+            text: "[06:00] CONEXÃO ESTABELECIDA...\n\nO deslizamento acabou de acontecer em Petrópolis. Você é o Coordenador Médico da Força-Tarefa.\n\nO rádio está um caos. Relatos de \"múltiplos feridos\" na Zona de Impacto. Ao mesmo tempo, a Defesa Civil reporta \"dezenas de famílias desalojadas\" indo para abrigos improvisados.\n\nSua primeira decisão definirá toda a operação. Qual sua prioridade?",
+            choices: [
+                { text: "A - Ir pessoalmente para a Zona de Impacto (Triagem)", target: "erro_gestao" },
+                { text: "B - Focar na Gestão (Posto de Comando)", target: "fase_2" }
+            ]
+        },
+        "erro_gestao": {
+            text: "Você chega à Zona de Impacto. A cena é caótica. Você ajuda na triagem e salva 3 vidas diretamente.\n\nContudo, você fica 8 horas preso na operação, sem comunicação. Ninguém coordenou a avaliação dos abrigos.",
+            feedback: { type: "error", msg: "ERRO DE GESTÃO: O desafio do Grupo 5 é a ORGANIZAÇÃO. Ao focar na emergência (micro), você abdicou da gestão (macro) e não preveniu os surtos nos abrigos." },
+            choices: [
+                { text: "Reiniciar Simulação", target: "start" }
+            ]
+        },
+        "fase_2": {
+            text: "Decisão correta. Você permanece no Posto de Comando para ter a visão geral.\n\n[07:00] Chega o balanço de recursos:\n- 10 equipes médicas disponíveis.\n- Emergência: Múltiplos feridos na lama.\n- Prevenção: 200 desalojados em abrigos precários.\n\nComo você aloca sua equipe?",
+            feedback: { type: "success", msg: "ACERTO: O papel do coordenador é gerenciar recursos e articular frentes." },
+            choices: [
+                { text: "A - 100% das equipes para a Zona de Impacto (Foco nos feridos)", target: "erro_prevencao" },
+                { text: "B - 70% Emergência / 30% Avaliação dos Abrigos", target: "fase_3" }
+            ]
+        },
+        "erro_prevencao": {
+            text: "[18:00] 12 horas se passam.\n\nO atendimento aos feridos foi ótimo. Mas um rádio desesperado chega do Abrigo 1: \"Doutor, surto de vômito e diarreia aqui. Saneamento colapsou.\"",
+            feedback: { type: "error", msg: "FALHA NA PREVENÇÃO: Você ignorou o 'Desafio' do trabalho (prevenção de agravos secundários). Agora você tem uma epidemia de Hepatite A/Cólera competindo com o desastre." },
+            choices: [
+                { text: "Tentar Novamente", target: "fase_2" }
+            ]
+        },
+        "fase_3": {
+            text: "[10:00] A equipe de avaliação (30%) retorna com ALERTA VERMELHO:\n\n1. Abrigo Escola: Água parada e lama. Risco IMINENTE de Leptospirose.\n2. Abrigo Ginásio: Superlotação e tosse. Risco de Surto Respiratório.\n\nQual sua prioridade de Saúde Pública?",
+            feedback: { type: "success", msg: "ACERTO: Dividir a equipe permitiu detectar os riscos antes que virassem surtos." },
+            choices: [
+                { text: "A - Atacar a Leptospirose (Profilaxia)", target: "erro_clinico" },
+                { text: "B - Atacar o Surto Respiratório (Máscaras)", target: "erro_clinico" },
+                { text: "C - Atacar a Causa Raiz (Articulação Intersetorial)", target: "fase_4" }
+            ]
+        },
+        "erro_clinico": {
+            text: "Você envia insumos médicos. Mas a lama continua lá (Lepto) e a superlotação continua lá (Respiratório).\n\nVocê está tratando o sintoma, não a causa.",
+            feedback: { type: "error", msg: "ERRO DE VISÃO: Ação clínica sem mudança de infraestrutura é inútil. Você precisa da Defesa Civil para resolver a água e o espaço." },
+            choices: [
+                { text: "Repensar Estratégia", target: "fase_3" }
+            ]
+        },
+        "fase_4": {
+            text: "[11:00] Você tenta contatar a Defesa Civil para pedir água potável e reorganização do espaço.\n\nO rádio está mudo. \"Dificuldades de comunicação\", como previsto no cenário.\n\nO que você faz?",
+            feedback: { type: "success", msg: "ACERTO: Você identificou que é um problema de infraestrutura (intersetorial), não apenas médico." },
+            choices: [
+                { text: "A - Continuar tentando pelos canais oficiais (Protocolo)", target: "erro_burocracia" },
+                { text: "B - Ir fisicamente ao QG da Defesa Civil (Pró-atividade)", target: "vitoria" }
+            ]
+        },
+        "erro_burocracia": {
+            text: "Você perde 3 horas tentando usar o rádio. Ninguém responde. A janela de oportunidade se fecha e os primeiros casos de febre aparecem.",
+            feedback: { type: "error", msg: "FALHA DE ARTICULAÇÃO: Em desastres, a burocracia colapsa. Esperar é uma decisão errada." },
+            choices: [
+                { text: "Tentar Novamente", target: "fase_4" }
+            ]
+        },
+        "vitoria": {
+            text: "[11:30] Você vai pessoalmente ao QG. O Comandante da Defesa Civil entende a gravidade.\n\nPLANO CONJUNTO ATIVADO:\n1. Defesa Civil envia caminhão-pipa (Fim do risco Lepto).\n2. Defesa Civil abre anexo do ginásio (Fim do risco Respiratório).\n3. Médicos aplicam profilaxia e isolamento.\n\nCrise Gerenciada.",
+            feedback: { type: "success", msg: "MISSÃO CUMPRIDA: Você resolveu o desafio do Grupo 5 unindo Emergência, Prevenção e Articulação." },
+            choices: [
+                { text: "Reiniciar Apresentação", target: "start" }
+            ]
+        }
+    };
+
+    // --- MOTOR DO JOGO (JavaScript Puro) ---
     
-    <style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style>
-    <script role="script" id="twine-user-script" type="text/twine-javascript"></script>
+    const textElement = document.getElementById('story-text');
+    const choicesContainer = document.getElementById('choices-container');
+    const feedbackArea = document.getElementById('feedback-area');
+    
+    // Função para escrever texto letra por letra (Typewriter)
+    function typeWriter(text, i, fnCallback) {
+        if (i < text.length) {
+            textElement.innerHTML = text.substring(0, i+1) + '<span class="cursor"></span>';
+            // Velocidade da digitação (ajuste o 15 para mais lento ou mais rápido)
+            setTimeout(function() {
+                typeWriter(text, i + 1, fnCallback)
+            }, 15);
+        } else {
+            if (fnCallback) fnCallback();
+        }
+    }
 
-    <tw-passagedata pid="1" name="Inicio" tags="" position="875,375" size="100,100">
-(text-style:"bold")[=== RELATÓRIO DE SITUAÇÃO: 06:00 ===]
-(text-colour:"red")[ALERTA DE DESASTRE EM PETRÓPOLIS]
+    // Função principal de navegação
+    function goTo(sceneId) {
+        const scene = story[sceneId];
+        
+        // 1. Limpar tela
+        textElement.innerHTML = "";
+        choicesContainer.innerHTML = "";
+        choicesContainer.style.opacity = "0";
+        feedbackArea.style.display = "none";
 
-O deslizamento acabou de acontecer. Você é o **Coordenador Médico da Força-Tarefa**.
-O rádio está um caos. Relatos de &quot;múltiplos feridos&quot; na Zona de Impacto. Ao mesmo tempo, a Defesa Civil reporta &quot;dezenas de famílias desalojadas&quot; indo para abrigos improvisados.
+        // 2. Mostrar Feedback anterior (se houver)
+        if (scene.feedback) {
+            feedbackArea.style.display = "block";
+            feedbackArea.className = scene.feedback.type === 'success' ? 'feedback-success' : 'feedback-error';
+            
+            // Ícone baseado no tipo
+            const icon = scene.feedback.type === 'success' ? '👨‍⚕️👍' : '👨‍⚕️👎';
+            feedbackArea.innerText = icon + " " + scene.feedback.msg;
+        }
 
-Sua primeira decisão definirá toda a operação. Qual sua prioridade?
+        // 3. Iniciar efeito de digitação
+        typeWriter(scene.text, 0, function() {
+            // Quando terminar de digitar, mostrar botões
+            renderButtons(scene.choices);
+        });
+    }
 
-[[A - Ir pessoalmente para a Zona de Impacto (Triagem e Atendimento)]]
-[[B - Focar na Gestão (Organizar as equipes do Posto de Comando)]]
-    </tw-passagedata>
+    function renderButtons(choices) {
+        choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.innerText = choice.text;
+            btn.className = 'btn';
+            btn.onclick = function() {
+                goTo(choice.target);
+            };
+            choicesContainer.appendChild(btn);
+        });
+        // Fade in nos botões
+        setTimeout(() => {
+            choicesContainer.style.opacity = "1";
+        }, 100);
+    }
 
-    <tw-passagedata pid="2" name="A - Ir pessoalmente para a Zona de Impacto (Triagem e Atendimento)" tags="" position="800,500" size="100,100">
-Você chega à Zona de Impacto. A cena é caótica. Sua experiência em triagem é vital e você salva 3 vidas diretamente.
-Contudo, você fica 8 horas preso na operação, sem comunicação clara com o resto do sistema.
+    // Iniciar o jogo
+    goTo('start');
 
-(text-colour:"orange")[**JUSTIFICATIVA DO ERRO:**]
-A tentação do médico é sempre o atendimento emergencial. No entanto, o desafio é a **organização da resposta médica e intersetorial**. Ao focar na emergência, você abdicou da gestão. Ninguém coordenou a avaliação dos abrigos nem a articulação com a Defesa Civil.
-
-[[FIM - FALHA ESTRATÉGICA: Surtos não detectados a tempo.]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="3" name="B - Focar na Gestão (Organizar as equipes a partir do Posto de Comando)" tags="" position="937.5,500" size="100,100">
-(text-style:"italic")[Decisão correta.] O papel do coordenador não é triar, mas sim gerenciar os recursos e articular as diferentes frentes.
-
-[07:00] Do Posto de Comando, você recebe o balanço:
-* Recursos: 10 equipes médicas.
-* Emergência: Feridos na Zona de Impacto.
-* Prevenção: 200 desalojados em 2 abrigos (escola e ginásio).
-
-Qual sua ordem de alocação de recursos?
-
-[[A - 100% das equipes para a Zona de Impacto (Prioridade total aos feridos)]]
-[[B - 70% Emergência / 30% Avaliação de Risco nos Abrigos]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="4" name="FIM - FALHA ESTRATÉGICA: Surtos não detectados a tempo." tags="" position="812.5,625" size="100,100">
-**SIMULAÇÃO ENCERRADA**
-Resultado: Insuficiente.
-    </tw-passagedata>
-
-    <tw-passagedata pid="5" name="A - 100% das equipes para a Zona de Impacto (Prioridade total aos feridos)" tags="" position="1000,625" size="100,100">
-Toda a força médica foca nos feridos. O atendimento emergencial é um sucesso.
-
-[18:00] (text-colour:"red")[12 horas se passam.]
-
-Um rádio desesperado chega do Abrigo 1: &quot;Doutor, temos dezenas de pessoas com febre e vômito. A situação aqui é horrível.&quot;
-
-(text-colour:"orange")[**JUSTIFICATIVA DO ERRO:**]
-O desafio é duplo: &quot;emergência E prevenção&quot;. Ao ignorar a avaliação dos abrigos, você permitiu que as condições precárias causassem um surto de doença hídrica, criando uma nova crise.
-
-[[FIM - FALHA NA PREVENÇÃO: Uma nova crise sanitária começou.]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="6" name="B - 70% Emergência / 30% Avaliação de Risco nos Abrigos" tags="" position="1125,625" size="100,100">
-(text-style:"italic")[Decisão correta.] Você balanceou a **emergência** com a **prevenção**.
-
-[10:00] (text-colour:"red")[ALERTA DA EQUIPE DE AVALIAÇÃO:]
-
-* **Abrigo 1 (Escola):** Saneamento precário, água parada. Risco IMINENTE de Leptospirose.
-* **Abrigo 2 (Ginásio):** Aglomeração extrema, tosse. Risco ELEVADO de Surtos Respiratórios.
-
-Você tem dois agravos prestes a explodir.
-
-[[A - Atacar a Leptospirose (Maior letalidade)]]
-[[B - Atacar o Surto Respiratório (Maior transmissibilidade)]]
-[[C - Atacar a Causa Raiz (Articulação Intersetorial)]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="7" name="FIM - FALHA NA PREVENÇÃO: Uma nova crise sanitária começou." tags="" position="1000,750" size="100,100">
-**SIMULAÇÃO ENCERRADA**
-Resultado: Insuficiente.
-    </tw-passagedata>
-
-    <tw-passagedata pid="8" name="A - Atacar a Leptospirose (Maior letalidade)" tags="" position="1125,750" size="100,100">
-Você envia equipes para iniciar a quimioprofilaxia.
-
-(text-colour:"orange")[**ERRO DE GESTÃO:**]
-Ação clínica correta, mas gestão falha. Você focou no *sintoma* e não na *causa raiz* (infraestrutura).
-A doença não será contida sem água potável (Defesa Civil). Você está agindo sozinho.
-
-[[Voltar e repensar a estratégia (Opção C)->C - Atacar a Causa Raiz (Articulação Intersetorial)]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="9" name="B - Atacar o Surto Respiratório (Maior transmissibilidade)" tags="" position="1250,750" size="100,100">
-Você envia máscaras.
-
-(text-colour:"orange")[**ERRO DE GESTÃO:**]
-Ação clínica correta, mas gestão falha. Você focou no *sintoma* e não na *causa raiz* (superlotação).
-O surto não será contido sem reorganização do espaço (Defesa Civil).
-
-[[Voltar e repensar a estratégia (Opção C)->C - Atacar a Causa Raiz (Articulação Intersetorial)]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="10" name="C - Atacar a Causa Raiz (Articulação Intersetorial)" tags="" position="1375,750" size="100,100">
-(text-style:"italic")[Decisão correta.] Ambas as crises são problemas de infraestrutura que exigem resposta intersetorial.
-
-[11:00] Você pega o rádio para falar com a Defesa Civil.
-O cenário se concretiza: (text-colour:"red")[&quot;Dificuldades de comunicação&quot;]. O rádio está mudo.
-
-O que você faz?
-
-[[A - Continuar tentando pelos canais oficiais (Seguir o protocolo)]]
-[[B - Deixar seu posto e ir fisicamente ao QG da Defesa Civil]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="12" name="A - Continuar tentando pelos canais oficiais (Seguir o protocolo)" tags="" position="1312.5,875" size="100,100">
-Você passa 3 horas no rádio. Ninguém responde.
-
-(text-colour:"orange")[**JUSTIFICATIVA DO ERRO:**]
-Em um desastre, a burocracia colapsa. Esperar passivamente é uma decisão errada. As 3 horas perdidas permitiram que os surtos se instalassem.
-
-[[FIM - FALHA NA ARTICULAÇÃO: Janela de prevenção perdida.]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="13" name="B - Deixar seu posto e ir fisicamente ao QG da Defesa Civil" tags="" position="1437.5,875" size="100,100">
-(text-style:"italic")[Decisão correta e corajosa.] Em desastres, a **articulação intersetorial** muitas vezes exige quebrar o protocolo e criar um canal direto.
-
-[11:30] Você encontra o Comandante da Defesa Civil. A ação agora é conjunta.
-
-[[VER O PLANO DE AÇÃO INTEGRADO]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="14" name="FIM - FALHA NA ARTICULAÇÃO: Janela de prevenção perdida." tags="" position="1312.5,1000" size="100,100">
-**SIMULAÇÃO ENCERRADA**
-Resultado: Insuficiente.
-    </tw-passagedata>
-
-    <tw-passagedata pid="15" name="VER O PLANO DE AÇÃO INTEGRADO" tags="" position="1437.5,1000" size="100,100">
-(text-style:"bold")[**MISSÃO CUMPRIDA**]
-
-A crise foi gerenciada com sucesso:
-
-1.  **Emergência:** Equipe de 70% continuou na Zona de Impacto.
-2.  **Intersetorial:** Defesa Civil garantiu água potável e reorganização dos abrigos.
-3.  **Prevenção:** Com a infraestrutura garantida, a equipe médica aplicou a profilaxia e o isolamento com sucesso.
-
-Você resolveu o desafio do Grupo 5.
-
-[[FIM]]
-    </tw-passagedata>
-
-    <tw-passagedata pid="16" name="FIM" tags="" position="1437.5,1125" size="100,100">
-Obrigado pela atenção.
-    </tw-passagedata>
-
-</tw-storydata>
-
-<script title="Twine engine code" data-main="harlowe">
-!function(){"use strict";var e=String.fromCharCode,t=Math.floor,n=Math.ceil,r=Math.abs,i=Math.min,o=Math.max,a=Object.assign,s=Object.keys;function l(e,t){return typeof e==typeof t&&e>=t&&e<=t}function c(e,t){return-1<e.indexOf(t)}function u(e){return Array.isArray(e)}
-/* NOTA: O código do motor Harlowe completo é muito grande (mais de 1MB). 
-   Para que este arquivo funcione offline e seja leve, ele precisa do motor injetado aqui.
-   Como não posso gerar 1MB de texto em uma resposta, você tem 2 opções:
-   
-   OPÇÃO A (Recomendada para apresentação): 
-   Use o Twine (software) que você já tem instalado. 
-   1. Abra o Twine.
-   2. Cole o conteúdo das passagens acima.
-   3. Copie o CSS que coloquei no <style> e cole no "Story Stylesheet".
-   4. Publique para Arquivo.
-
-   OPÇÃO B (Teste rápido online):
-   O código abaixo carrega o motor da internet se você estiver online.
-*/
-if(window.storyFormat) return; 
-var s = document.createElement("script");
-s.src = "https://twinery.org/formats/harlowe/3.3.9/harlowe-min.js";
-document.head.appendChild(s);
-}();
 </script>
-
 </body>
 </html>
