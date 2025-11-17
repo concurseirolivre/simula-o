@@ -9,7 +9,7 @@
         body {
             background-color: #050505;
             color: #e0e0e0;
-            font-family: 'Courier New', Courier, monospace; /* Estilo Terminal */
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             height: 100vh;
             overflow: hidden;
@@ -18,38 +18,88 @@
             justify-content: center;
         }
 
-        /* Imagem de Fundo com Filtro Escuro */
+        /* Imagem de Fundo */
         .background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('img1.jpg'); /* Imagem genérica de chuva/desastre */
+            /* Coloque aqui sua imagem de fundo (img1.jpg, etc) */
+            background-image: url('img1.jpg'); 
             background-size: cover;
             background-position: center;
             filter: brightness(0.3) contrast(1.2) blur(2px);
             z-index: -1;
         }
 
-        /* O "Monitor" da Sala de Situação */
+        /* --- TELA DE INTRODUÇÃO (AUDIO) --- */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999; /* Fica por cima de tudo */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: opacity 1s ease-out;
+        }
+
+        #intro-content h1 {
+            color: #d32f2f;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(211, 47, 47, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        #btn-start-audio {
+            background: transparent;
+            border: 2px solid #d32f2f;
+            color: #d32f2f;
+            padding: 15px 40px;
+            font-size: 1.5em;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+        #btn-start-audio:hover {
+            background-color: #d32f2f;
+            color: #fff;
+            box-shadow: 0 0 20px #d32f2f;
+        }
+
+        .listening-text {
+            margin-top: 20px;
+            color: #888;
+            display: none; /* Escondido até clicar */
+            font-size: 1.2em;
+        }
+
+        /* --- O JOGO (ESCONDIDO INICIALMENTE) --- */
         #game-container {
             width: 80%;
             max-width: 800px;
             background-color: rgba(20, 20, 20, 0.95);
             border: 1px solid #444;
-            border-left: 5px solid #d32f2f; /* Faixa vermelha de emergência */
+            border-left: 5px solid #d32f2f;
             border-radius: 8px;
             padding: 40px;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
             min-height: 400px;
-            display: flex;
+            display: none; /* Começa invisível */
             flex-direction: column;
             justify-content: space-between;
-            animation: slideUp 0.5s ease-out;
+            opacity: 0; /* Para animação de entrada */
         }
 
-        /* Cabeçalho */
+        /* Restante do CSS do Jogo */
         .header {
             border-bottom: 1px solid #555;
             padding-bottom: 10px;
@@ -59,239 +109,31 @@
             font-size: 0.9em;
             color: #888;
         }
-        .status-blink {
-            color: #d32f2f;
-            font-weight: bold;
-            animation: blink 1s infinite;
-        }
-
-        /* Texto da História */
-        #story-text {
-            font-size: 1.2em;
-            line-height: 1.6;
-            white-space: pre-wrap; /* Respeita quebras de linha */
-            min-height: 150px;
-        }
-
-        /* Feedback Visual (Médico Feliz/Triste) */
-        #feedback-area {
-            margin: 20px 0;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 4px;
-            display: none; /* Escondido por padrão */
-        }
-        .feedback-success {
-            background-color: rgba(46, 125, 50, 0.2);
-            border: 1px solid #2e7d32;
-            color: #81c784;
-        }
-        .feedback-error {
-            background-color: rgba(198, 40, 40, 0.2);
-            border: 1px solid #c62828;
-            color: #e57373;
-        }
-
-        /* Botões de Escolha */
-        .choices {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-            opacity: 0; /* Começa invisível para efeito fade-in */
-            transition: opacity 1s;
-        }
-        .btn {
-            background: transparent;
-            border: 1px dashed #FFEB3B;
-            color: #FFEB3B;
-            padding: 15px;
-            text-align: left;
-            font-family: inherit;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn:hover {
-            background-color: #FFEB3B;
-            color: #000;
-            border-style: solid;
-            transform: translateX(5px);
-        }
-
-        /* Animações */
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .status-blink { color: #d32f2f; font-weight: bold; animation: blink 1s infinite; }
+        #story-text { font-size: 1.2em; line-height: 1.6; white-space: pre-wrap; min-height: 150px; }
+        #feedback-area { margin: 20px 0; font-weight: bold; padding: 10px; border-radius: 4px; display: none; }
+        .feedback-success { background-color: rgba(46, 125, 50, 0.2); border: 1px solid #2e7d32; color: #81c784; }
+        .feedback-error { background-color: rgba(198, 40, 40, 0.2); border: 1px solid #c62828; color: #e57373; }
+        .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; opacity: 0; transition: opacity 1s; }
+        .btn { background: transparent; border: 1px dashed #FFEB3B; color: #FFEB3B; padding: 15px; text-align: left; font-family: inherit; font-size: 1.1em; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background-color: #FFEB3B; color: #000; border-style: solid; transform: translateX(5px); }
+        .cursor { display: inline-block; width: 10px; height: 1em; background-color: #0f0; animation: blink 1s infinite; vertical-align: bottom; }
         
-        /* Cursor de digitação */
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 1em;
-            background-color: #0f0;
-            animation: blink 1s infinite;
-            vertical-align: bottom;
-        }
-
-        .hidden { display: none; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div class="background"></div>
 
-    <div id="game-container">
-        <div class="header">
-            <span>SALA DE SITUAÇÃO: GRUPO 5</span>
-            <span class="status-blink">● AO VIVO - PETRÓPOLIS</span>
+    <div id="intro-overlay">
+        <div id="intro-content">
+            <h1>PLANTÃO URGENTE</h1>
+            <p>Simulação de Desastre Ambiental - Grupo 5</p>
+            <button id="btn-start-audio">INICIAR TRANSMISSÃO</button>
+            <p class="listening-text" id="listening-msg">📡 Recebendo áudio da repórter...</p>
         </div>
-
-        <div id="text-container">
-            <span id="story-text"></span><span class="cursor"></span>
-        </div>
-
-        <div id="feedback-area"></div>
-
-        <div id="choices-container" class="choices"></div>
     </div>
-
-<script>
-    // --- DADOS DA SIMULAÇÃO (O Roteiro) ---
-    const story = {
-        "start": {
-            text: "[06:00] CONEXÃO ESTABELECIDA...\n\nO deslizamento acabou de acontecer em Petrópolis. Você é o Coordenador Médico da Força-Tarefa.\n\nO rádio está um caos. Relatos de \"múltiplos feridos\" na Zona de Impacto. Ao mesmo tempo, a Defesa Civil reporta \"dezenas de famílias desalojadas\" indo para abrigos improvisados.\n\nSua primeira decisão definirá toda a operação. Qual sua prioridade?",
-            choices: [
-                { text: "A - Ir pessoalmente para a Zona de Impacto (Triagem)", target: "erro_gestao" },
-                { text: "B - Focar na Gestão (Posto de Comando)", target: "fase_2" }
-            ]
-        },
-        "erro_gestao": {
-            text: "Você chega à Zona de Impacto. A cena é caótica. Você ajuda na triagem e salva 3 vidas diretamente.\n\nContudo, você fica 8 horas preso na operação, sem comunicação. Ninguém coordenou a avaliação dos abrigos.",
-            feedback: { type: "error", msg: "ERRO DE GESTÃO: O desafio é a ORGANIZAÇÃO. Ao focar na emergência (micro), você abdicou da gestão (macro) e não preveniu os surtos nos abrigos." },
-            choices: [
-                { text: "Reiniciar Simulação", target: "start" }
-            ]
-        },
-        "fase_2": {
-            text: "Decisão correta. Você permanece no Posto de Comando para ter a visão geral.\n\n[07:00] Chega o balanço de recursos:\n- 10 equipes médicas disponíveis.\n- Emergência: Múltiplos feridos na lama.\n- Prevenção: 200 desalojados em abrigos precários.\n\nComo você aloca sua equipe?",
-            feedback: { type: "success", msg: "ACERTO: O papel do coordenador é gerenciar recursos e articular frentes." },
-            choices: [
-                { text: "A - 100% das equipes para a Zona de Impacto (Foco nos feridos)", target: "erro_prevencao" },
-                { text: "B - 70% Emergência / 30% Avaliação dos Abrigos", target: "fase_3" }
-            ]
-        },
-        "erro_prevencao": {
-            text: "[18:00] 12 horas se passam.\n\nO atendimento aos feridos foi ótimo. Mas um rádio desesperado chega do Abrigo 1: \"Doutor, surto de vômito e diarreia aqui. Saneamento colapsou.\"",
-            feedback: { type: "error", msg: "FALHA NA PREVENÇÃO: Você ignorou o 'Desafio' do trabalho (prevenção de agravos secundários). Agora você tem uma epidemia de Hepatite A/Cólera competindo com o desastre." },
-            choices: [
-                { text: "Tentar Novamente", target: "fase_2" }
-            ]
-        },
-        "fase_3": {
-            text: "[10:00] A equipe de avaliação (30%) retorna com ALERTA VERMELHO:\n\n1. Abrigo Escola: Água parada e lama. Risco IMINENTE de Leptospirose.\n2. Abrigo Ginásio: Superlotação e tosse. Risco de Surto Respiratório.\n\nQual sua prioridade de Saúde Pública?",
-            feedback: { type: "success", msg: "ACERTO: Dividir a equipe permitiu detectar os riscos antes que virassem surtos." },
-            choices: [
-                { text: "A - Atacar a Leptospirose (Profilaxia)", target: "erro_clinico" },
-                { text: "B - Atacar o Surto Respiratório (Máscaras)", target: "erro_clinico" },
-                { text: "C - Atacar a Causa Raiz (Articulação Intersetorial)", target: "fase_4" }
-            ]
-        },
-        "erro_clinico": {
-            text: "Você envia insumos médicos. Mas a lama continua lá (Lepto) e a superlotação continua lá (Respiratório).\n\nVocê está tratando o sintoma, não a causa.",
-            feedback: { type: "error", msg: "ERRO DE VISÃO: Ação clínica sem mudança de infraestrutura é inútil. Você precisa da Defesa Civil para resolver a água e o espaço." },
-            choices: [
-                { text: "Repensar Estratégia", target: "fase_3" }
-            ]
-        },
-        "fase_4": {
-            text: "[11:00] Você tenta contatar a Defesa Civil para pedir água potável e reorganização do espaço.\n\nO rádio está mudo. \"Dificuldades de comunicação\", como previsto no cenário.\n\nO que você faz?",
-            feedback: { type: "success", msg: "ACERTO: Você identificou que é um problema de infraestrutura (intersetorial), não apenas médico." },
-            choices: [
-                { text: "A - Continuar tentando pelos canais oficiais (Protocolo)", target: "erro_burocracia" },
-                { text: "B - Ir fisicamente ao QG da Defesa Civil (Pró-atividade)", target: "vitoria" }
-            ]
-        },
-        "erro_burocracia": {
-            text: "Você perde 3 horas tentando usar o rádio. Ninguém responde. A janela de oportunidade se fecha e os primeiros casos de febre aparecem.",
-            feedback: { type: "error", msg: "FALHA DE ARTICULAÇÃO: Em desastres, a burocracia colapsa. Esperar é uma decisão errada." },
-            choices: [
-                { text: "Tentar Novamente", target: "fase_4" }
-            ]
-        },
-        "vitoria": {
-            text: "[11:30] Você vai pessoalmente ao QG. O Comandante da Defesa Civil entende a gravidade.\n\nPLANO CONJUNTO ATIVADO:\n1. Defesa Civil envia caminhão-pipa (Fim do risco Lepto).\n2. Defesa Civil abre anexo do ginásio (Fim do risco Respiratório).\n3. Médicos aplicam profilaxia e isolamento.\n\nCrise Gerenciada.",
-            feedback: { type: "success", msg: "MISSÃO CUMPRIDA: Você resolveu o desafio unindo Emergência, Prevenção e Articulação." },
-            choices: [
-                { text: "Reiniciar Apresentação", target: "start" }
-            ]
-        }
-    };
-
-    // --- MOTOR DO JOGO (JavaScript Puro) ---
-    
-    const textElement = document.getElementById('story-text');
-    const choicesContainer = document.getElementById('choices-container');
-    const feedbackArea = document.getElementById('feedback-area');
-    
-    // Função para escrever texto letra por letra (Typewriter)
-    function typeWriter(text, i, fnCallback) {
-        if (i < text.length) {
-            textElement.innerHTML = text.substring(0, i+1) + '<span class="cursor"></span>';
-            // Velocidade da digitação (ajuste o 15 para mais lento ou mais rápido)
-            setTimeout(function() {
-                typeWriter(text, i + 1, fnCallback)
-            }, 15);
-        } else {
-            if (fnCallback) fnCallback();
-        }
-    }
-
-    // Função principal de navegação
-    function goTo(sceneId) {
-        const scene = story[sceneId];
-        
-        // 1. Limpar tela
-        textElement.innerHTML = "";
-        choicesContainer.innerHTML = "";
-        choicesContainer.style.opacity = "0";
-        feedbackArea.style.display = "none";
-
-        // 2. Mostrar Feedback anterior (se houver)
-        if (scene.feedback) {
-            feedbackArea.style.display = "block";
-            feedbackArea.className = scene.feedback.type === 'success' ? 'feedback-success' : 'feedback-error';
-            
-            // Ícone baseado no tipo
-            const icon = scene.feedback.type === 'success' ? '👨‍⚕️👍' : '👨‍⚕️👎';
-            feedbackArea.innerText = icon + " " + scene.feedback.msg;
-        }
-
-        // 3. Iniciar efeito de digitação
-        typeWriter(scene.text, 0, function() {
-            // Quando terminar de digitar, mostrar botões
-            renderButtons(scene.choices);
-        });
-    }
-
-    function renderButtons(choices) {
-        choices.forEach(choice => {
-            const btn = document.createElement('button');
-            btn.innerText = choice.text;
-            btn.className = 'btn';
-            btn.onclick = function() {
-                goTo(choice.target);
-            };
-            choicesContainer.appendChild(btn);
-        });
-        // Fade in nos botões
-        setTimeout(() => {
-            choicesContainer.style.opacity = "1";
-        }, 100);
-    }
-
-    // Iniciar o jogo
-    goTo('start');
-
-</script>
-</body>
-</html>
