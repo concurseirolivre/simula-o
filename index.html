@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulação ATS - Grupo 5</title>
     <style>
-        /* --- CONFIGURAÇÃO GERAL E TEMA --- */
+        /* --- CONFIGURAÇÃO GERAL --- */
         body {
             background-color: #050505;
             color: #e0e0e0;
@@ -18,15 +18,14 @@
             justify-content: center;
         }
 
-        /* Imagem de Fundo */
+        /* Fundo */
         .background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            /* Coloque aqui sua imagem de fundo (img1.jpg, etc) */
-            background-image: url('img1.jpg'); 
+            background-image: url('img1.jpg'); /* Verifique se sua imagem está aqui */
             background-size: cover;
             background-position: center;
             filter: brightness(0.3) contrast(1.2) blur(2px);
@@ -41,7 +40,7 @@
             width: 100%;
             height: 100%;
             background-color: #000;
-            z-index: 9999; /* Fica por cima de tudo */
+            z-index: 9999;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -58,6 +57,7 @@
             animation: pulse 2s infinite;
         }
 
+        /* Botão Principal de Início */
         #btn-start-audio {
             background: transparent;
             border: 2px solid #d32f2f;
@@ -75,14 +75,26 @@
             box-shadow: 0 0 20px #d32f2f;
         }
 
-        .listening-text {
+        /* Mensagem de Status */
+        #status-msg {
             margin-top: 20px;
             color: #888;
-            display: none; /* Escondido até clicar */
             font-size: 1.2em;
+            min-height: 1.5em;
         }
 
-        /* --- O JOGO (ESCONDIDO INICIALMENTE) --- */
+        /* Botão de Emergência (Pular) */
+        #btn-skip {
+            margin-top: 50px;
+            background: none;
+            border: none;
+            color: #555;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        /* --- O JOGO --- */
         #game-container {
             width: 80%;
             max-width: 800px;
@@ -93,13 +105,12 @@
             padding: 40px;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
             min-height: 400px;
-            display: none; /* Começa invisível */
+            display: none; 
             flex-direction: column;
             justify-content: space-between;
-            opacity: 0; /* Para animação de entrada */
+            opacity: 0;
         }
 
-        /* Restante do CSS do Jogo */
         .header {
             border-bottom: 1px solid #555;
             padding-bottom: 10px;
@@ -121,7 +132,6 @@
         
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -133,7 +143,208 @@
         <div id="intro-content">
             <h1>PLANTÃO URGENTE</h1>
             <p>Simulação de Desastre Ambiental - Grupo 5</p>
+            
             <button id="btn-start-audio">INICIAR TRANSMISSÃO</button>
-            <p class="listening-text" id="listening-msg">📡 Recebendo áudio da repórter...</p>
+            <div id="status-msg"></div>
+
+            <button id="btn-skip" onclick="startGame(true)">[Pular intro e ir para o jogo]</button>
         </div>
     </div>
+
+    <audio id="narracao" src="audio.mp3" preload="auto"></audio>
+
+    <div id="game-container">
+        <div class="header">
+            <span>SALA DE SITUAÇÃO: GRUPO 5</span>
+            <span class="status-blink">● AO VIVO - PETRÓPOLIS</span>
+        </div>
+        <div id="text-container">
+            <span id="story-text"></span><span class="cursor"></span>
+        </div>
+        <div id="feedback-area"></div>
+        <div id="choices-container" class="choices"></div>
+    </div>
+
+<script>
+    // --- CONTROLE DE ÁUDIO E ERROS ---
+    const introOverlay = document.getElementById('intro-overlay');
+    const btnStartAudio = document.getElementById('btn-start-audio');
+    const statusMsg = document.getElementById('status-msg');
+    const audioPlayer = document.getElementById('narracao');
+    const gameContainer = document.getElementById('game-container');
+
+    btnStartAudio.addEventListener('click', function() {
+        statusMsg.innerText = "Carregando áudio...";
+        statusMsg.style.color = "#FFEB3B";
+
+        // Tenta tocar
+        const playPromise = audioPlayer.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                // Sucesso: Áudio tocando
+                btnStartAudio.style.display = 'none';
+                document.getElementById('btn-skip').style.display = 'none';
+                statusMsg.innerText = "📡 Reproduzindo transmissão...";
+                statusMsg.style.color = "#4CAF50";
+            })
+            .catch(error => {
+                // Erro: Arquivo não encontrado ou bloqueado
+                console.error("Erro no áudio:", error);
+                alert("ERRO: Não foi possível tocar o áudio 'audio.mp3'.\n\nMotivo: O arquivo pode não estar na pasta ou o nome está errado.\n\nIniciando o jogo sem áudio...");
+                startGame(true); // Força o início imediato
+            });
+        }
+    });
+
+    // Quando o áudio acabar, começa o jogo
+    audioPlayer.addEventListener('ended', function() {
+        startGame(false);
+    });
+
+    // Se der erro no carregamento do arquivo (ex: nome errado)
+    audioPlayer.addEventListener('error', function(e) {
+        console.log("Arquivo de áudio não encontrado.");
+    });
+
+    function startGame(forceImmediate) {
+        // Se for forçado (erro), esconde rápido. Se for normal, faz transição suave.
+        const delay = forceImmediate ? 0 : 1000;
+
+        introOverlay.style.opacity = '0';
+        
+        setTimeout(() => {
+            introOverlay.style.display = 'none';
+            gameContainer.style.display = 'flex';
+            
+            // Animação de entrada do jogo
+            setTimeout(() => {
+                gameContainer.style.opacity = '1';
+                gameContainer.style.animation = 'fadeIn 1s ease-out';
+                goTo('start');
+            }, 100);
+        }, delay);
+    }
+
+    // --- MOTOR DO JOGO (Lógica da Simulação) ---
+    const story = {
+        "start": {
+            text: "[06:05] CONEXÃO ESTABELECIDA COM POSTO DE COMANDO...\n\nO deslizamento acabou de acontecer. A repórter confirmou o caos local. Você é o Coordenador Médico.\n\nRecursos limitados. Vidas em risco.\n\nSua primeira decisão definirá toda a operação. Qual sua prioridade?",
+            choices: [
+                { text: "A - Ir pessoalmente para a Zona de Impacto (Triagem)", target: "erro_gestao" },
+                { text: "B - Focar na Gestão (Posto de Comando)", target: "fase_2" }
+            ]
+        },
+        "erro_gestao": {
+            text: "Você chega à Zona de Impacto. A cena é caótica. Você ajuda na triagem e salva 3 vidas diretamente.\n\nContudo, você fica 8 horas preso na operação, sem comunicação. Ninguém coordenou a avaliação dos abrigos.",
+            feedback: { type: "error", msg: "ERRO DE GESTÃO: O desafio é a ORGANIZAÇÃO. Ao focar na emergência (micro), você abdicou da gestão (macro) e não preveniu os surtos nos abrigos." },
+            choices: [
+                { text: "Reiniciar Simulação", target: "fase_2" } // Atalho para não voltar tudo
+            ]
+        },
+        "fase_2": {
+            text: "Decisão correta. Você permanece no Posto de Comando para ter a visão geral.\n\n[07:00] Chega o balanço de recursos:\n- 10 equipes médicas disponíveis.\n- Emergência: Múltiplos feridos na lama.\n- Prevenção: 200 desalojados em abrigos precários.\n\nComo você aloca sua equipe?",
+            feedback: { type: "success", msg: "ACERTO: O papel do coordenador é gerenciar recursos e articular frentes." },
+            choices: [
+                { text: "A - 100% das equipes para a Zona de Impacto (Foco nos feridos)", target: "erro_prevencao" },
+                { text: "B - 70% Emergência / 30% Avaliação dos Abrigos", target: "fase_3" }
+            ]
+        },
+        "erro_prevencao": {
+            text: "[18:00] 12 horas se passam.\n\nO atendimento aos feridos foi ótimo. Mas um rádio desesperado chega do Abrigo 1: \"Doutor, surto de vômito e diarreia aqui. Saneamento colapsou.\"",
+            feedback: { type: "error", msg: "FALHA NA PREVENÇÃO: Você ignorou o 'Desafio' do trabalho (prevenção de agravos secundários). Agora você tem uma epidemia de Hepatite A/Cólera competindo com o desastre." },
+            choices: [
+                { text: "Tentar Novamente", target: "fase_2" }
+            ]
+        },
+        "fase_3": {
+            text: "[10:00] A equipe de avaliação (30%) retorna com ALERTA VERMELHO:\n\n1. Abrigo Escola: Água parada e lama. Risco IMINENTE de Leptospirose.\n2. Abrigo Ginásio: Superlotação e tosse. Risco de Surto Respiratório.\n\nQual sua prioridade de Saúde Pública?",
+            feedback: { type: "success", msg: "ACERTO: Dividir a equipe permitiu detectar os riscos antes que virassem surtos." },
+            choices: [
+                { text: "A - Atacar a Leptospirose (Profilaxia)", target: "erro_clinico" },
+                { text: "B - Atacar o Surto Respiratório (Máscaras)", target: "erro_clinico" },
+                { text: "C - Atacar a Causa Raiz (Articulação Intersetorial)", target: "fase_4" }
+            ]
+        },
+        "erro_clinico": {
+            text: "Você envia insumos médicos. Mas a lama continua lá (Lepto) e a superlotação continua lá (Respiratório).\n\nVocê está tratando o sintoma, não a causa.",
+            feedback: { type: "error", msg: "ERRO DE VISÃO: Ação clínica sem mudança de infraestrutura é inútil. Você precisa da Defesa Civil para resolver a água e o espaço." },
+            choices: [
+                { text: "Repensar Estratégia", target: "fase_3" }
+            ]
+        },
+        "fase_4": {
+            text: "[11:00] Você tenta contatar a Defesa Civil para pedir água potável e reorganização do espaço.\n\nO rádio está mudo. \"Dificuldades de comunicação\", como previsto no cenário.\n\nO que você faz?",
+            feedback: { type: "success", msg: "ACERTO: Você identificou que é um problema de infraestrutura (intersetorial), não apenas médico." },
+            choices: [
+                { text: "A - Continuar tentando pelos canais oficiais (Protocolo)", target: "erro_burocracia" },
+                { text: "B - Ir fisicamente ao QG da Defesa Civil (Pró-atividade)", target: "vitoria" }
+            ]
+        },
+        "erro_burocracia": {
+            text: "Você perde 3 horas tentando usar o rádio. Ninguém responde. A janela de oportunidade se fecha e os primeiros casos de febre aparecem.",
+            feedback: { type: "error", msg: "FALHA DE ARTICULAÇÃO: Em desastres, a burocracia colapsa. Esperar é uma decisão errada." },
+            choices: [
+                { text: "Tentar Novamente", target: "fase_4" }
+            ]
+        },
+        "vitoria": {
+            text: "[11:30] Você vai pessoalmente ao QG. O Comandante da Defesa Civil entende a gravidade.\n\nPLANO CONJUNTO ATIVADO:\n1. Defesa Civil envia caminhão-pipa (Fim do risco Lepto).\n2. Defesa Civil abre anexo do ginásio (Fim do risco Respiratório).\n3. Médicos aplicam profilaxia e isolamento.\n\nCrise Gerenciada.",
+            feedback: { type: "success", msg: "MISSÃO CUMPRIDA: Você resolveu o desafio do Grupo 5 unindo Emergência, Prevenção e Articulação." },
+            choices: [
+                { text: "Reiniciar Apresentação", target: "start" }
+            ]
+        }
+    };
+
+    const textElement = document.getElementById('story-text');
+    const choicesContainer = document.getElementById('choices-container');
+    const feedbackArea = document.getElementById('feedback-area');
+    
+    function typeWriter(text, i, fnCallback) {
+        if (i < text.length) {
+            textElement.innerHTML = text.substring(0, i+1) + '<span class="cursor"></span>';
+            setTimeout(function() {
+                typeWriter(text, i + 1, fnCallback)
+            }, 15);
+        } else {
+            if (fnCallback) fnCallback();
+        }
+    }
+
+    function goTo(sceneId) {
+        const scene = story[sceneId];
+        textElement.innerHTML = "";
+        choicesContainer.innerHTML = "";
+        choicesContainer.style.opacity = "0";
+        feedbackArea.style.display = "none";
+
+        if (scene.feedback) {
+            feedbackArea.style.display = "block";
+            feedbackArea.className = scene.feedback.type === 'success' ? 'feedback-success' : 'feedback-error';
+            const icon = scene.feedback.type === 'success' ? '👨‍⚕️👍' : '👨‍⚕️👎';
+            feedbackArea.innerText = icon + " " + scene.feedback.msg;
+        }
+
+        typeWriter(scene.text, 0, function() {
+            renderButtons(scene.choices);
+        });
+    }
+
+    function renderButtons(choices) {
+        choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.innerText = choice.text;
+            btn.className = 'btn';
+            btn.onclick = function() {
+                goTo(choice.target);
+            };
+            choicesContainer.appendChild(btn);
+        });
+        setTimeout(() => {
+            choicesContainer.style.opacity = "1";
+        }, 100);
+    }
+</script>
+</body>
+</html>
