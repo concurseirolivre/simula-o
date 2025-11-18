@@ -41,7 +41,7 @@
             filter: brightness(0.3) contrast(1.2) blur(2px);
         }
 
-        /* --- EFEITOS VISUAIS --- */
+        /* EFEITOS DE DESASTRE */
         #disaster-layer {
             position: fixed;
             top: 0;
@@ -53,7 +53,6 @@
             display: none;
         }
 
-        /* Chuva */
         .rain {
             position: absolute;
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.5));
@@ -64,7 +63,6 @@
             pointer-events: none;
         }
 
-        /* Fogo */
         .fire-particle {
             position: absolute;
             background: radial-gradient(circle, rgba(255,80,0,0.8) 0%, rgba(255,0,0,0) 70%);
@@ -164,7 +162,7 @@
             height: 100%;
             background-color: rgba(0,0,0,0.9);
             z-index: 2000;
-            display: none;
+            display: none; /* Começa oculto */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -285,7 +283,7 @@
     
     <div id="disaster-layer"></div>
 
-    <audio id="audio-prologue" src="narracao_prologo.mp3" preload="auto"></audio>
+    <audio id="audio-prologue" src="" preload="auto"></audio>
     <audio id="audio-news" src="noticia.mp3" preload="auto"></audio>
     <audio id="audio-game" src="audio.mp3" preload="auto"></audio>
 
@@ -331,7 +329,7 @@
     </div>
 
 <script>
-    // --- REFERÊNCIAS ---
+    // --- VARIÁVEIS GERAIS ---
     const prologueContainer = document.getElementById('prologue-container');
     const introScreen = document.getElementById('intro-screen');
     const gameContainer = document.getElementById('game-container');
@@ -342,12 +340,12 @@
     const audioGame = document.getElementById('audio-game');
     const btnPlayPause = document.getElementById('btn-play-pause');
 
-    // --- EFEITOS ---
+    // --- EFEITOS DE DESASTRE ---
     let disasterInterval;
 
     function startDisasterEffect(type) {
         disasterLayer.style.display = 'block';
-        disasterLayer.innerHTML = '';
+        disasterLayer.innerHTML = ''; // Limpa partículas anteriores
         clearInterval(disasterInterval);
 
         if (type === 'rain') {
@@ -393,7 +391,7 @@
         prologueContainer.classList.remove('shake-screen');
     }
 
-    // --- DADOS ---
+    // --- DADOS DO PRÓLOGO ---
     const prologueData = [
         {
             title: "INÍCIO",
@@ -489,7 +487,6 @@
             });
     }
 
-    // --- BOTÕES DO PRÓLOGO ---
     document.getElementById('btn-next-prologue').addEventListener('click', () => {
         if(isFirstInteraction) {
             isFirstInteraction = false;
@@ -517,7 +514,7 @@
         }
     });
 
-    // Botão de Play/Pause corrigido
+    // Botão de Play/Pause
     btnPlayPause.addEventListener('click', () => {
         if (isFirstInteraction) {
             isFirstInteraction = false;
@@ -533,12 +530,11 @@
         }
     });
 
-
-    // --- 2. TRANSIÇÃO PARA TELA DE ALERTA (ATENÇÃO) ---
+    // --- 2. TRANSIÇÃO PARA TELA DE ALERTA ---
     function showIntroScreen() {
-        audioPrologue.pause(); // Para o áudio do slide
+        audioPrologue.pause(); // Para o áudio do prólogo
 
-        // AGORA SIM: Toca a NOTÍCIA quando entra na tela de Atenção
+        // TOCA O AUDIO DA NOTÍCIA (noticia.mp3)
         audioNews.currentTime = 0;
         audioNews.play().catch(e => console.error("Erro audio noticia:", e));
 
