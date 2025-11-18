@@ -44,13 +44,13 @@
         }
 
 
-        /* --- 1. TELA DE PRÓLOGO (PRIMEIRA) --- */
+        /* --- 1. TELA DE PRÓLOGO --- */
         #prologue-container {
             width: 90%;
             max-width: 900px;
             background-color: rgba(20, 20, 25, 0.95);
             border: 1px solid #444;
-            border-top: 5px solid #2196F3; /* Azul Ciência */
+            border-top: 5px solid #2196F3;
             border-radius: 8px;
             padding: 40px;
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
@@ -104,7 +104,7 @@
         .btn-prologue:hover { background: #2196F3; color: white; }
 
 
-        /* --- 2. TELA DE ABERTURA/ALERTA (SEGUNDA) --- */
+        /* --- 2. TELA DE ABERTURA/ALERTA --- */
         #intro-screen {
             position: fixed;
             top: 0;
@@ -113,7 +113,7 @@
             height: 100%;
             background-color: rgba(0,0,0,0.9);
             z-index: 2000;
-            display: none; /* Começa escondida */
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -138,7 +138,6 @@
             font-size: 1.5em;
         }
 
-        /* Botão Vermelho Pulsante */
         #btn-start-simulation {
             background: transparent;
             border: 3px solid #ff3d00;
@@ -160,13 +159,13 @@
         }
 
 
-        /* --- 3. TELA DO JOGO (TERCEIRA) --- */
+        /* --- 3. TELA DO JOGO --- */
         #game-container {
             width: 80%;
             max-width: 800px;
-            background-color: rgba(20, 20, 20, 0.95); /* Neutro */
+            background-color: rgba(20, 20, 20, 0.95);
             border: 1px solid #444;
-            border-left: 5px solid #d32f2f; /* Detalhe vermelho */
+            border-left: 5px solid #d32f2f;
             border-radius: 8px;
             padding: 40px;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
@@ -292,37 +291,37 @@
     // --- 1. LÓGICA DO PRÓLOGO ---
     const prologueData = [
         {
-            title: "INÍCIO",
+            title: "0:00 - ABERTURA",
             text: "\"Quando um desastre acontece — seja um deslizamento, um incêndio ou uma enchente — o caos domina os primeiros minutos.\n\nMas existe uma lógica médica por trás das decisões que salvam vidas. Hoje você vai entender como funciona a atuação do médico em cenários de desastre.\"",
             img: "https://www.pragmatismopolitico.com.br/wp-content/uploads/2018/05/acidente-cuba-e1527030296940.jpg"
         },
         {
-            title: "O PAPEL DO MÉDICO",
+            title: "0:20 - O PAPEL DO MÉDICO",
             text: "\"Um desastre é qualquer evento que ultrapassa a capacidade normal de resposta.\n\nO médico precisa entender fisiologia, toxicologia e epidemiologia. É aqui que entram conceitos como triagem, manejo de vias aéreas e tomada de decisão rápida quando não há recursos para todos.\"",
             img: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=1920&q=80"
         },
         {
-            title: "TRIAGEM (MÉTODO START)",
+            title: "1:00 - TRIAGEM (MÉTODO START)",
             text: "\"A triagem é o coração da resposta. Definimos quem precisa de intervenção imediata.\n\nO método START baseia-se em:\n• Respiração (>30rpm = Vermelho)\n• Perfusão (>2s = Choque)\n• Estado mental (Não obedece comandos = Hipóxia)\"",
-            img: "https://iespe.com.br/wp-content/uploads/2016/09/o-que-e-o-metodo-start-3-.png"
+            img: "https://images.unsplash.com/photo-1516574187841-69301976e49e?auto=format&fit=crop&w=1920&q=80"
         },
         {
-            title: "SITUAÇÕES SIMPLES",
+            title: "2:00 - SITUAÇÕES SIMPLES",
             text: "\"A maioria das demandas são simples: ferimentos leves, ansiedade, desidratação.\n\nO médico atua como estabilizador: hidratação oral, suturas, analgésicos e controle de hipertensão por estresse em vulneráveis.\"",
             img: "https://www.saude.sp.gov.br/resources/hospital-leonor-mendes-de-barros/acesso-rapido/primeiros-socorros-em-caso-de-incendio.jpg"
         },
         {
-            title: "ALTA COMPLEXIDADE",
+            title: "2:40 - ALTA COMPLEXIDADE",
             text: "\"Em incêndios: Intoxicação por monóxido de carbono.\nEm deslizamentos: Síndrome do Esmagamento (liberação de mioglobina e potássio, risco renal e arritmias).\n\nDecisões baseadas em fisiologia e protocolos.\"",
             img: "https://ogimg.infoglobo.com.br/in/23946251-8e9-d10/FT1086A/GettyImages-56441651.jpg"
         },
         {
-            title: "LOGÍSTICA E LIDERANÇA",
+            title: "3:30 - LOGÍSTICA E LIDERANÇA",
             text: "\"O médico coordena fluxos e conversa com bombeiros e defesa civil.\n\nNo abrigo, o trabalho continua: vigilância epidemiológica, prevenção de surtos, vacinação e controle da água.\"",
             img: "https://cdn.folhape.com.br/img/c/1200/900/dn_arquivo/2020/01/medico1.jpg"
         },
         {
-            title: "A ESSÊNCIA",
+            title: "4:15 - A ESSÊNCIA",
             text: "\"No fim, atuar em um desastre é equilibrar ciência, humanidade e estratégia.\n\nA medicina nesses cenários não é apenas técnica; é também coragem e organização quando tudo ao redor parece ter ruído.\"",
             img: "https://blog.unyleyamed.com.br/wp-content/uploads/2023/09/shutterstock_661890763-scaled.webp"
         }
@@ -342,7 +341,7 @@
         
         const nextBtn = document.getElementById('btn-next-prologue');
         if (currentPrologueIndex === prologueData.length - 1) {
-            nextBtn.innerText = "IR PARA AÇÃO ⚠";
+            nextBtn.innerText = "IR PARA SIMULAÇÃO ⚠";
             nextBtn.style.borderColor = "#ff3d00";
             nextBtn.style.color = "#ff3d00";
         } else {
@@ -353,6 +352,7 @@
     }
 
     document.getElementById('btn-next-prologue').addEventListener('click', () => {
+        // Tenta tocar o áudio na primeira interação (navegadores exigem isso)
         if(audioPrologue.paused && currentPrologueIndex === 0) {
             audioPrologue.play().catch(e=>console.log("Audio start"));
             document.getElementById('audio-status').innerText = "🔊 Tocando...";
@@ -387,6 +387,10 @@
     // --- 2. TRANSIÇÃO PARA TELA DE ALERTA ---
     function showIntroScreen() {
         audioPrologue.pause(); // Para o áudio explicativo
+        
+        // *** ALTERAÇÃO: Tocar o áudio do jogo AQUI ***
+        audioGame.currentTime = 0;
+        audioGame.play().catch(e => console.error("Audio game auto-play:", e));
 
         prologueContainer.style.display = 'none';
         
@@ -401,13 +405,9 @@
     }
 
 
-    // --- 3. TRANSIÇÃO PARA O JOGO (COM AUDIO!) ---
+    // --- 3. TRANSIÇÃO PARA O JOGO ---
     document.getElementById('btn-start-simulation').addEventListener('click', () => {
         
-        // AQUI É A MÁGICA: O áudio começa no exato momento do clique
-        audioGame.currentTime = 0;
-        audioGame.play().catch(e => console.error("Erro audio jogo:", e));
-
         introScreen.style.transition = "opacity 1s";
         introScreen.style.opacity = '0';
 
@@ -537,7 +537,6 @@
 
     function goTo(sceneId) {
         const scene = story[sceneId];
-        
         textElement.innerHTML = "";
         choicesContainer.innerHTML = "";
         choicesContainer.style.opacity = "0";
