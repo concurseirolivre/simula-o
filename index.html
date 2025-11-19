@@ -41,7 +41,7 @@
             filter: brightness(0.3) contrast(1.2) blur(2px);
         }
 
-        /* --- CAMADAS DE EFEITOS VISUAIS --- */
+        /* EFEITOS VISUAIS */
         #disaster-layer {
             position: fixed;
             top: 0;
@@ -49,11 +49,11 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 900;
-            display: none; /* Controlado via JS */
+            z-index: 900; /* Fica sobre o fundo, mas atrás do texto */
+            display: none;
         }
-
-        /* Camada do Raio (Flash Branco) */
+        
+        /* Camada de Flash (Raio) */
         #lightning-flash {
             position: fixed;
             top: 0;
@@ -61,12 +61,11 @@
             width: 100%;
             height: 100%;
             background-color: rgba(255, 255, 255, 0.8);
-            z-index: 901; /* Acima da chuva */
+            z-index: 901; 
             opacity: 0;
             pointer-events: none;
         }
 
-        /* Gotas de Chuva */
         .rain {
             position: absolute;
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.6));
@@ -77,7 +76,6 @@
             pointer-events: none;
         }
 
-        /* Fogo (Para o prólogo) */
         .fire-particle {
             position: absolute;
             background: radial-gradient(circle, rgba(255,80,0,0.8) 0%, rgba(255,0,0,0) 70%);
@@ -88,12 +86,10 @@
             mix-blend-mode: screen;
         }
 
-        /* Animação de Tremor (Trovão) */
         .shake-screen {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
 
-        /* Animações Keyframes */
         @keyframes rain-fall { to { transform: translateY(120vh); } }
         
         @keyframes rise { 
@@ -112,58 +108,187 @@
             0% { opacity: 0; }
             10% { opacity: 0.8; }
             20% { opacity: 0; }
-            30% { opacity: 0.4; }
             100% { opacity: 0; }
         }
 
-
-        /* --- ELEMENTOS DE INTERFACE --- */
-        #prologue-container, #game-container {
+        /* --- 1. TELA DE PRÓLOGO --- */
+        #prologue-container {
             width: 90%;
             max-width: 900px;
             background-color: rgba(20, 20, 25, 0.95);
             border: 1px solid #444;
+            border-top: 5px solid #2196F3;
             border-radius: 8px;
             padding: 40px;
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-            display: none;
+            display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             z-index: 1000;
+            animation: fadeIn 1s;
             position: relative;
         }
-        
-        #prologue-container { border-top: 5px solid #2196F3; display: flex; }
-        #game-container { border-left: 5px solid #d32f2f; max-width: 800px; }
 
-        #prologue-title { color: #2196F3; font-size: 1.5em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; width: 100%; }
-        #prologue-text, #story-text { font-size: 1.3em; line-height: 1.6; white-space: pre-wrap; margin-bottom: 30px; text-align: left; color: #fff; }
-        #story-text { min-height: 100px; }
+        #prologue-title {
+            color: #2196F3;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            width: 100%;
+        }
 
-        .nav-buttons { display: flex; gap: 20px; width: 100%; justify-content: space-between; align-items: center; }
-        .btn-prologue { background: transparent; border: 1px solid #2196F3; color: #2196F3; padding: 10px 30px; font-size: 1em; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+        #prologue-text {
+            font-size: 1.3em;
+            line-height: 1.6;
+            min-height: 200px;
+            white-space: pre-wrap;
+            margin-bottom: 30px;
+            text-align: left;
+            color: #fff;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-prologue {
+            background: transparent;
+            border: 1px solid #2196F3;
+            color: #2196F3;
+            padding: 10px 30px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
         .btn-prologue:hover { background: #2196F3; color: white; }
 
-        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; }
-        #intro-content h1 { color: #ff3d00; font-size: 4em; margin-bottom: 0; text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 61, 0, 0.8); animation: pulse 1.5s infinite; letter-spacing: 5px; }
-        #intro-content h2 { color: #fff; font-weight: normal; margin-top: 10px; font-size: 1.5em; }
+        /* --- 2. TELA DE ABERTURA/ALERTA --- */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: none; /* Começa oculta */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+        }
 
-        #btn-start-simulation { background: transparent; border: 3px solid #ff3d00; color: #ff3d00; padding: 20px 50px; font-size: 1.8em; font-family: inherit; font-weight: bold; cursor: pointer; margin-top: 50px; transition: all 0.3s; text-transform: uppercase; animation: borderPulse 2s infinite; }
-        #btn-start-simulation:hover { background-color: #ff3d00; color: #000; box-shadow: 0 0 30px #ff3d00; }
+        #intro-content h1 {
+            color: #ff3d00;
+            font-size: 4em;
+            margin-bottom: 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255, 61, 0, 0.8);
+            animation: pulse 1.5s infinite;
+            letter-spacing: 5px;
+        }
 
-        .header { border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; font-size: 0.9em; color: #888; width: 100%; }
+        #intro-content h2 {
+            color: #fff;
+            font-weight: normal;
+            margin-top: 10px;
+            font-size: 1.5em;
+        }
+
+        #btn-start-simulation {
+            background: transparent;
+            border: 3px solid #ff3d00;
+            color: #ff3d00;
+            padding: 20px 50px;
+            font-size: 1.8em;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 50px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            animation: borderPulse 2s infinite;
+        }
+        #btn-start-simulation:hover {
+            background-color: #ff3d00;
+            color: #000;
+            box-shadow: 0 0 30px #ff3d00;
+        }
+
+        /* --- 3. TELA DO JOGO --- */
+        #game-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: rgba(20, 20, 20, 0.95);
+            border: 1px solid #444;
+            border-left: 5px solid #d32f2f;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            min-height: 400px;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            z-index: 500;
+            position: relative; /* Para o tremor funcionar */
+        }
+
+        .header {
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #888;
+        }
         .status-blink { color: #d32f2f; font-weight: bold; animation: blink 1s infinite; }
         
-        #feedback-area { margin-bottom: 20px; font-weight: bold; padding: 15px; border-radius: 4px; display: none; font-size: 1.1em; width: 100%; box-sizing: border-box;}
+        #story-text { font-size: 1.2em; line-height: 1.6; white-space: pre-wrap; min-height: 100px; }
+
+        #feedback-area { 
+            margin-bottom: 20px; 
+            font-weight: bold; 
+            padding: 15px; 
+            border-radius: 4px; 
+            display: none; 
+            font-size: 1.1em;
+        }
         .feedback-success { background-color: rgba(46, 125, 50, 0.2); border: 1px solid #2e7d32; color: #81c784; }
         .feedback-error { background-color: rgba(198, 40, 40, 0.2); border: 1px solid #c62828; color: #e57373; }
 
-        .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 30px; opacity: 0; transition: opacity 1s; width: 100%; }
-        .btn { background: transparent; border: 1px dashed #FFEB3B; color: #FFEB3B; padding: 15px; text-align: left; font-family: inherit; font-size: 1.1em; cursor: pointer; transition: all 0.2s; }
-        .btn:hover { background-color: #FFEB3B; color: #000; border-style: solid; transform: translateX(5px); }
+        .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 30px; opacity: 0; transition: opacity 1s; }
+        
+        .btn { 
+            background: transparent; 
+            border: 1px dashed #FFEB3B; 
+            color: #FFEB3B; 
+            padding: 15px; 
+            text-align: left; 
+            font-family: inherit; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .btn:hover { 
+            background-color: #FFEB3B; 
+            color: #000; 
+            border-style: solid; 
+            transform: translateX(5px); 
+        }
+        
         .cursor { display: inline-block; width: 10px; height: 1em; background-color: #0f0; animation: blink 1s infinite; vertical-align: bottom; }
-
+        
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes borderPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 61, 0, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 61, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 61, 0, 0); } }
@@ -187,7 +312,9 @@
         
         <div class="nav-buttons">
             <button class="btn-prologue" id="btn-prev-prologue" style="visibility: hidden;">Anterior</button>
-            <button class="btn-prologue" id="btn-play-pause" style="min-width: 160px;">▶️ Tocar Narração</button>
+            
+            <button class="btn-prologue" id="btn-play-pause" style="min-width: 160px;">▶️ Play</button>
+
             <button class="btn-prologue" id="btn-next-prologue">Próximo ➜</button>
         </div>
     </div>
@@ -207,10 +334,13 @@
             <span>SALA DE SITUAÇÃO: GRUPO 5</span>
             <span class="status-blink">● AO VIVO - PETRÓPOLIS</span>
         </div>
+
         <div id="feedback-area"></div>
+
         <div id="text-container">
             <span id="story-text"></span><span class="cursor"></span>
         </div>
+        
         <div id="choices-container" class="choices"></div>
     </div>
 
@@ -235,15 +365,14 @@
     let disasterInterval;
     let lightningInterval;
 
-    // Função de Raio (Flash)
     function triggerLightning() {
-        // Toca o flash
+        // Efeito visual de flash
         lightningFlash.style.animation = 'none';
-        lightningFlash.offsetHeight; /* trigger reflow */
-        lightningFlash.style.animation = 'flash-anim 0.5s ease-out';
-        
-        // Treme a tela do jogo se estiver visível
-        if(gameContainer.style.display === 'flex') {
+        lightningFlash.offsetHeight; // Trigger reflow
+        lightningFlash.style.animation = 'flash-anim 0.3s ease-out';
+
+        // Tremor na tela do jogo (se visível)
+        if (gameContainer.style.display === 'flex') {
             gameContainer.classList.remove('shake-screen');
             void gameContainer.offsetWidth; 
             gameContainer.classList.add('shake-screen');
@@ -254,7 +383,7 @@
         disasterLayer.style.display = 'block';
         disasterLayer.innerHTML = '';
         clearInterval(disasterInterval);
-        clearInterval(lightningInterval); // Limpa raios anteriores
+        clearInterval(lightningInterval);
 
         if (type === 'rain' || type === 'storm') {
             // CHUVA
@@ -270,12 +399,11 @@
                 }
             }, 50);
 
-            // SE FOR 'STORM' (usado na simulação), ADICIONA RAIOS
+            // SE FOR TEMPESTADE (STORM), ADICIONA RAIOS
             if (type === 'storm') {
-                // Raios aleatórios a cada 3 a 8 segundos
                 lightningInterval = setInterval(() => {
                     if(Math.random() > 0.6) triggerLightning();
-                }, 2000);
+                }, 3000); // Tenta disparar um raio a cada 3s
             }
 
         } else if (type === 'fire') {
@@ -307,6 +435,7 @@
     // --- CONTROLE DE AUDIO ---
     let currentPrologueIndex = 0;
     let isFirstInteraction = true;
+    let currentStage = 'prologue';
 
     // Dados do Prólogo
     const prologueData = [
@@ -356,23 +485,41 @@
         }
     ];
 
-    // --- UPDATE PROLOGUE ---
+    // --- GERENCIAMENTO DE ESTADO DE AUDIO ---
+    function manageAudioState(audioFile, shouldPlay = true) {
+        if (!audioPrologue.paused) audioPrologue.pause();
+        
+        if (audioPrologue.getAttribute('src') !== audioFile) {
+            audioPrologue.src = audioFile;
+            audioPrologue.load();
+        }
+
+        if (shouldPlay && !isFirstInteraction) {
+            audioPrologue.play().then(() => {
+                btnPlayPause.innerText = "⏸️ Pausar Narração";
+            }).catch(e => {
+                console.log("Autoplay blocked");
+                btnPlayPause.innerText = "▶️ Tocar Narração";
+            });
+        } else {
+            btnPlayPause.innerText = "▶️ Tocar Narração";
+        }
+    }
+
     function updatePrologue() {
         const data = prologueData[currentPrologueIndex];
         document.getElementById('prologue-title').innerText = data.title;
         document.getElementById('prologue-text').innerText = data.text;
         mainBg.style.backgroundImage = `url('${data.img}')`;
-        mainBg.className = "background-fixed bg-prologue";
 
-        // Efeitos do slide
         if (data.effectType) {
             startDisasterEffect(data.effectType);
         } else {
             stopDisasterEffect();
         }
 
-        // Botões nav
         btnPrev.style.visibility = currentPrologueIndex === 0 ? 'hidden' : 'visible';
+        
         if (currentPrologueIndex === prologueData.length - 1) {
             btnNext.innerText = "IR PARA AÇÃO ⚠";
             btnNext.style.borderColor = "#ff3d00";
@@ -383,25 +530,13 @@
             btnNext.style.color = "#2196F3";
         }
 
-        // Áudio Slide
-        if (!isFirstInteraction && data.audio) {
-            playPrologueAudio(data.audio);
+        if (data.audio) {
+            const shouldPlay = !isFirstInteraction && currentPrologueIndex > 0;
+            manageAudioState(data.audio, shouldPlay);
         }
     }
 
-    function playPrologueAudio(url) {
-        audioPrologue.pause();
-        audioPrologue.src = url;
-        audioPrologue.load();
-        audioPrologue.play().then(() => {
-            btnPlayPause.innerText = "⏸️ Pausar Narração";
-        }).catch(e => {
-            console.log("Autoplay blocked");
-            btnPlayPause.innerText = "▶️ Tocar Narração";
-        });
-    }
-
-    // --- BOTÕES DE NAVEGAÇÃO ---
+    // --- EVENTOS ---
     btnNext.addEventListener('click', () => {
         if(isFirstInteraction) isFirstInteraction = false;
 
@@ -410,8 +545,13 @@
             updatePrologue();
         } else {
             // FIM DO PRÓLOGO -> ALERTA
-            stopDisasterEffect(); // Para efeitos do prólogo
+            stopDisasterEffect();
             audioPrologue.pause();
+            
+            // TOCA NOTÍCIA
+            audioNews.currentTime = 0;
+            audioNews.play().catch(e => console.error("Erro noticia:", e));
+            
             showIntroScreen();
         }
     });
@@ -424,9 +564,9 @@
     });
 
     btnPlayPause.addEventListener('click', () => {
-        if(isFirstInteraction) {
+        if (isFirstInteraction) {
             isFirstInteraction = false;
-            playPrologueAudio(prologueData[currentPrologueIndex].audio);
+            manageAudioState(prologueData[currentPrologueIndex].audio, true);
             return;
         }
         if (audioPrologue.paused) {
@@ -441,32 +581,23 @@
     // --- TRANSIÇÃO: TELA DE ALERTA ---
     function showIntroScreen() {
         prologueContainer.style.display = 'none';
-        
-        // Muda fundo
         mainBg.style.backgroundImage = "url('img1.jpg')";
         mainBg.className = "background-fixed bg-game";
         
-        // TOCA O ÁUDIO DA NOTÍCIA IMEDIATAMENTE
-        audioNews.currentTime = 0;
-        audioNews.play().catch(e => console.error("Erro noticia:", e));
-
         introScreen.style.display = 'flex';
         setTimeout(() => { introScreen.style.opacity = '1'; }, 50);
     }
 
     // --- TRANSIÇÃO: INICIAR JOGO ---
     btnStartSim.addEventListener('click', () => {
-        // Para notícia
         audioNews.pause();
         
-        // Toca som do jogo
         audioGame.currentTime = 0;
         audioGame.play().catch(e => console.error("Erro game audio:", e));
-
-        // Ativa chuva e raios na simulação
+        
+        // Ativa TEMPESTADE (Chuva + Raios) no jogo
         startDisasterEffect('storm');
 
-        // Fade out alerta
         introScreen.style.transition = "opacity 1s";
         introScreen.style.opacity = '0';
 
@@ -481,7 +612,7 @@
         }, 1000);
     });
 
-    // --- MOTOR DO JOGO (MESMO DE ANTES) ---
+    // --- MOTOR DO JOGO ---
     const story = {
         "start": {
             text: "[06:05] CONEXÃO ESTABELECIDA COM POSTO DE COMANDO...\n\nO deslizamento acabou de acontecer. A repórter confirmou o caos local. Você é o Coordenador Médico.\n\nRecursos limitados. Vidas em risco.\n\nSua primeira decisão definirá toda a operação. Qual sua prioridade?",
@@ -626,7 +757,6 @@
         }, 100);
     }
 
-    // INICIALIZAR
     updatePrologue();
 </script>
 </body>
