@@ -362,8 +362,20 @@
     const btnStartSim = document.getElementById('btn-start-simulation');
 
     // Configure default game audio properties (ajustáveis)
-    audioGame.loop = false;
+    audioGame.loop = false; // garantir que não repita
     audioGame.volume = 0.6;
+
+    // reforço: se tocar, garante loop false (proteção extra)
+    audioGame.addEventListener('play', () => {
+        audioGame.loop = false;
+    });
+
+    // Quando terminar o áudio do jogo, podemos parar efeitos de desastre (opcional)
+    audioGame.addEventListener('ended', () => {
+        // se quiser que algo mais aconteça ao final do áudio, modifique aqui.
+        // por padrão: paramos o efeito (para acabar a tempestade do fundo)
+        stopDisasterEffect();
+    });
 
     // --- EFEITOS VISUAIS (CHUVA, FOGO, RAIOS) ---
     let disasterInterval;
@@ -551,12 +563,13 @@
             audioPrologue.pause();
 
             // --- Inicia o áudio do jogo IMEDIATAMENTE ao clicar IR PARA AÇÃO ---
-            audioGame.currentTime = 0;
-            audioGame.play().then(() => {
-                // começou o áudio do jogo
-            }).catch(e => {
-                console.warn("Erro ao tentar tocar audioGame:", e);
-            });
+            // Só inicia se estiver pausado (protege contra reinícios)
+            if (audioGame.paused) {
+                audioGame.currentTime = 0;
+                audioGame.play().catch(e => {
+                    console.warn("Erro ao tentar tocar audioGame:", e);
+                });
+            }
 
             // Ativa TEMPESTADE EM PLANO DE FUNDO (Chuva + Raios) antes de mostrar o alerta
             // Assim o efeito fica no fundo e não sobrepõe o texto (graças ao z-index negativo)
@@ -601,10 +614,10 @@
 
     // --- TRANSIÇÃO: INICIAR JOGO ---
     btnStartSim.addEventListener('click', () => {
-        // já está tocando audioGame desde "IR PARA AÇÃO", mas garantimos que esteja tocando e zeramos audioNews
+        // já está tocando audioGame desde "IR PARA AÇÃO" em condições normais, mas garantimos que esteja tocando e zeramos audioNews
         audioNews.pause();
 
-        // Caso audioGame não esteja tocando (por qualquer motivo), tenta iniciar
+        // Caso audioGame não esteja tocando (por qualquer motivo), tenta iniciar (só se estiver pausado)
         if (audioGame.paused) {
             audioGame.currentTime = 0;
             audioGame.play().catch(e => console.error("Erro game audio:", e));
