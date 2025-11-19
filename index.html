@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Simulação ATS - Grupo 5</title>
     <style>
         /* --- GERAL --- */
+        :root { --accent-blue: #2196F3; --accent-alert: #ff3d00; --yellow: #FFEB3B; }
+        html,body{height:100%;margin:0}
         body {
             background-color: #050505;
             color: #e0e0e0;
@@ -23,30 +25,33 @@
            ========================================= */
         #cover-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset:0;
             background-color: #050505;
-            z-index: 3000; /* Fica acima de tudo */
+            z-index: 3000;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Arial Black', sans-serif;
             color: #fff;
             cursor: pointer;
-            transition: opacity 1.5s ease-out;
+            transition: opacity 1.2s ease-out;
         }
 
+        .rain-back, .rain-front {
+            position:absolute; inset:0;
+            pointer-events:none;
+        }
         .rain-back {
-            position: absolute; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.1) 100%);
-            background-size: 2px 30px; animation: rain-fall-css 0.4s linear infinite; opacity: 0.3; z-index: 1;
+            background: linear-gradient(to bottom, transparent 50%, rgba(255,255,255,0.08) 100%);
+            background-size: 2px 30px;
+            animation: rain-fall-css 0.4s linear infinite;
+            opacity: 0.28; z-index:1;
         }
         .rain-front {
-            position: absolute; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 70%, rgba(255, 255, 255, 0.4) 100%);
-            background-size: 3px 25px; animation: rain-fall-css 0.2s linear infinite; opacity: 0.6; z-index: 2;
+            background: linear-gradient(to bottom, transparent 70%, rgba(255,255,255,0.35) 100%);
+            background-size: 3px 25px;
+            animation: rain-fall-css 0.2s linear infinite;
+            opacity: 0.6; z-index:2;
         }
         .bolt {
             position: absolute; top: -20%; left: 50%; transform: translateX(-50%);
@@ -54,94 +59,99 @@
             clip-path: polygon(50% 0%, 30% 60%, 45% 60%, 25% 100%, 75% 40%, 60% 40%, 80% 0%);
             box-shadow: 0 0 80px #fff, 0 0 150px #78aaff; z-index: 3; opacity: 0;
             animation: lightning 6s infinite;
+            pointer-events:none;
         }
         .flash {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff; z-index: 4; opacity: 0; pointer-events: none;
+            position:absolute; inset:0; background:#fff; z-index:4; opacity:0; pointer-events:none;
             animation: flash-screen 6s infinite;
         }
         .content-box {
-            position: relative; z-index: 10; background: rgba(0, 0, 0, 0.7);
-            padding: 40px 60px; border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,1);
+            position: relative; z-index: 10; background: rgba(0, 0, 0, 0.72);
+            padding: 36px 56px; border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.9);
             backdrop-filter: blur(3px); text-align: center;
             animation: shake-text 6s infinite;
+            min-width:300px;
         }
-        .content-box h1 { margin: 0; font-size: 3rem; text-transform: uppercase; letter-spacing: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .content-box h2 { margin: 5px 0 25px 0; font-size: 1.2rem; color: #ff5252; text-transform: uppercase; letter-spacing: 2px; font-weight: normal; }
-        .members { list-style: none; padding: 0; margin: 0; font-family: 'Segoe UI', sans-serif; font-size: 1.1rem; font-weight: 600; color: #cfcfcf; line-height: 1.6; }
-        .start-msg { margin-top: 20px; font-size: 0.8rem; color: #888; font-family: monospace; animation: blink 2s infinite; }
+        .content-box h1 { margin: 0; font-size: 2.6rem; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 8px rgba(255,255,255,0.45); }
+        .content-box h2 { margin: 6px 0 18px 0; font-size: 1rem; color: #ff5252; text-transform: uppercase; letter-spacing: 1.6px; font-weight: 600; }
+        .members { list-style: none; padding: 0; margin: 0; font-family: 'Segoe UI', sans-serif; font-size: 0.98rem; font-weight: 600; color: #cfcfcf; line-height: 1.6; }
+        .start-msg { margin-top: 16px; font-size: 0.82rem; color: #9a9a9a; font-family: monospace; animation: blink 2s infinite; }
 
-        @keyframes rain-fall-css { 0% { background-position: 0px 0px; } 100% { background-position: 20px 100vh; } }
-        @keyframes lightning { 0%, 92% { opacity: 0; } 93% { opacity: 1; } 94% { opacity: 0; } 95% { opacity: 0.8; } 96% { opacity: 0; } 100% { opacity: 0; } }
-        @keyframes flash-screen { 0%, 92% { opacity: 0; } 93% { opacity: 0.8; } 94% { opacity: 0; } 95% { opacity: 0.4; } 96% { opacity: 0; } 100% { opacity: 0; } }
-        @keyframes shake-text { 0%, 92% { transform: translate(0, 0); } 93% { transform: translate(-5px, 5px); } 94% { transform: translate(5px, -5px); } 95% { transform: translate(-5px, -5px); } 96% { transform: translate(0, 0); } }
+        @keyframes rain-fall-css { 0% { background-position: 0 0 } 100% { background-position: 20px 100vh } }
+        @keyframes lightning { 0%,92%{opacity:0}93%{opacity:1}94%{opacity:0}95%{opacity:0.8}96%{opacity:0}100%{opacity:0} }
+        @keyframes flash-screen { 0%,92%{opacity:0}93%{opacity:0.8}94%{opacity:0}95%{opacity:0.4}96%{opacity:0}100%{opacity:0} }
+        @keyframes shake-text { 0%,92%{transform:translate(0,0)}93%{transform:translate(-4px,4px)}94%{transform:translate(4px,-4px)}95%{transform:translate(-4px,-4px)}96%{transform:translate(0,0)} }
 
         /* =========================================
            2. ESTILOS DO JOGO E PRÓLOGO
            ========================================= */
-        .background-fixed {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center; z-index: -5;
-            transition: all 1s ease;
-        }
-        .bg-prologue { filter: brightness(0.4) contrast(1.1); transition: background-image 0.5s ease; }
-        .bg-game { background-image: url('img1.jpg'); filter: brightness(0.3) contrast(1.2) blur(2px); }
+        .background-fixed { position: fixed; inset:0; background-size: cover; background-position: center; z-index:-5; transition: all .9s ease; }
+        .bg-prologue { filter: brightness(.42) contrast(1.05); transition: background-image .45s ease; }
+        .bg-game { background-image: url('img1.jpg'); filter: brightness(.3) contrast(1.18) blur(2px); }
 
-        /* Efeitos JS (Chuva/Fogo do Jogo) */
-        #disaster-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; display: none; }
-        .rain-js { position: absolute; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.5)); width: 2px; height: 50px; top: -60px; border-radius: 2px; pointer-events: none; }
-        .fire-particle { position: absolute; background: radial-gradient(circle, rgba(255,80,0,0.8) 0%, rgba(255,0,0,0) 70%); border-radius: 50%; bottom: -50px; pointer-events: none; filter: blur(4px); mix-blend-mode: screen; }
-        @keyframes rain-fall { to { transform: translateY(120vh); } }
-        @keyframes rise { 0% { transform: translateY(0) scale(1); opacity: 0.8; } 100% { transform: translateY(-80vh) scale(0); opacity: 0; } }
-        
-        /* Prólogo Container */
-        #prologue-container { width: 90%; max-width: 900px; background-color: rgba(20, 20, 25, 0.95); border: 1px solid #444; border-top: 5px solid #2196F3; border-radius: 8px; padding: 40px; box-shadow: 0 0 50px rgba(0, 0, 0, 0.9); display: none; flex-direction: column; align-items: center; text-align: center; z-index: 1000; animation: fadeIn 1s; position: relative; }
-        #prologue-title { color: #2196F3; font-size: 1.5em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; width: 100%; }
-        #prologue-text { font-size: 1.3em; line-height: 1.6; min-height: 200px; white-space: pre-wrap; margin-bottom: 30px; text-align: left; color: #fff; }
-        
-        /* Botões */
-        .nav-buttons { display: flex; gap: 20px; width: 100%; justify-content: space-between; align-items: center; }
-        .btn-prologue { background: transparent; border: 1px solid #2196F3; color: #2196F3; padding: 10px 30px; font-size: 1em; cursor: pointer; transition: all 0.3s; font-family: inherit; }
-        .btn-prologue:hover { background: #2196F3; color: white; }
+        /* Disaster layer (JS generated) */
+        #disaster-layer { position: fixed; inset:0; pointer-events:none; z-index:900; display:none; overflow:hidden; }
 
-        /* Intro Alert Screen */
-        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; }
-        #intro-content h1 { color: #ff3d00; font-size: 4em; margin-bottom: 0; text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 61, 0, 0.8); animation: pulse 1.5s infinite; letter-spacing: 5px; }
-        #intro-content h2 { color: #fff; font-weight: normal; margin-top: 10px; font-size: 1.5em; }
-        #btn-start-simulation { background: transparent; border: 3px solid #ff3d00; color: #ff3d00; padding: 20px 50px; font-size: 1.8em; font-family: inherit; font-weight: bold; cursor: pointer; margin-top: 50px; transition: all 0.3s; text-transform: uppercase; animation: borderPulse 2s infinite; }
-        #btn-start-simulation:hover { background-color: #ff3d00; color: #000; box-shadow: 0 0 30px #ff3d00; }
+        .rain-js { position:absolute; background:linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.6)); width:2px; border-radius:2px; pointer-events:none; }
+        .fire-particle { position:absolute; border-radius:50%; pointer-events:none; filter:blur(4px); mix-blend-mode:screen; }
 
-        /* Game Container */
-        #game-container { width: 80%; max-width: 800px; background-color: rgba(20, 20, 20, 0.95); border: 1px solid #444; border-left: 5px solid #d32f2f; border-radius: 8px; padding: 40px; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8); min-height: 400px; display: none; flex-direction: column; opacity: 0; z-index: 500; }
-        .header { border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; font-size: 0.9em; color: #888; }
-        .status-blink { color: #d32f2f; font-weight: bold; animation: blink 1s infinite; }
-        #story-text { font-size: 1.2em; line-height: 1.6; white-space: pre-wrap; min-height: 100px; }
-        #feedback-area { margin-bottom: 20px; font-weight: bold; padding: 15px; border-radius: 4px; display: none; font-size: 1.1em; }
-        .feedback-success { background-color: rgba(46, 125, 50, 0.2); border: 1px solid #2e7d32; color: #81c784; }
-        .feedback-error { background-color: rgba(198, 40, 40, 0.2); border: 1px solid #c62828; color: #e57373; }
-        .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 30px; opacity: 0; transition: opacity 1s; }
-        .btn { background: transparent; border: 1px dashed #FFEB3B; color: #FFEB3B; padding: 15px; text-align: left; font-family: inherit; font-size: 1.1em; cursor: pointer; transition: all 0.2s; }
-        .btn:hover { background-color: #FFEB3B; color: #000; border-style: solid; transform: translateX(5px); }
-        .cursor { display: inline-block; width: 10px; height: 1em; background-color: #0f0; animation: blink 1s infinite; vertical-align: bottom; }
+        @keyframes rain-fall { to { transform: translateY(120vh) } }
+        @keyframes rise { 0% { transform: translateY(0) scale(1); opacity: 0.9 } 100% { transform: translateY(-80vh) scale(.2); opacity: 0 } }
 
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes borderPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 61, 0, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 61, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 61, 0, 0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Prólogo container */
+        #prologue-container { width: 92%; max-width: 920px; background-color: rgba(20,20,25,0.96); border:1px solid #444; border-top:5px solid var(--accent-blue); border-radius:8px; padding:34px; box-shadow:0 0 50px rgba(0,0,0,0.9); display:none; flex-direction:column; align-items:center; text-align:center; z-index:1000; animation:fadeIn 0.9s; position:relative; }
+        #prologue-title { color: var(--accent-blue); font-size:1.35em; text-transform:uppercase; letter-spacing:1.8px; margin-bottom:16px; border-bottom:1px solid #333; padding-bottom:8px; width:100%; }
+        #prologue-text { font-size:1.15em; line-height:1.6; min-height:170px; white-space:pre-wrap; margin-bottom:24px; text-align:left; color:#fff; }
+
+        /* Buttons */
+        .nav-buttons { display:flex; gap:14px; width:100%; justify-content:space-between; align-items:center; }
+        .btn-prologue { background:transparent; border:1px solid var(--accent-blue); color:var(--accent-blue); padding:10px 26px; font-size:1em; cursor:pointer; transition:all .22s; font-family:inherit; border-radius:6px; }
+        .btn-prologue:hover { background:var(--accent-blue); color:#000; }
+        .btn-danger { border-color: var(--accent-alert); color: var(--accent-alert); }
+        .btn-danger:hover { background: var(--accent-alert); color: #000; }
+
+        /* Intro alert */
+        #intro-screen { position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:2000; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:0; }
+        #intro-content h1 { color: var(--accent-alert); font-size:3.2em; margin:0; text-transform:uppercase; text-shadow:0 0 14px rgba(255,61,0,0.6); animation:pulse 1.4s infinite; letter-spacing:4px; }
+        #intro-content h2 { color:#fff; font-weight:600; margin-top:8px; font-size:1.15em; }
+        #btn-start-simulation { background:transparent; border:3px solid var(--accent-alert); color:var(--accent-alert); padding:18px 44px; font-size:1.2em; font-family:inherit; font-weight:700; cursor:pointer; margin-top:30px; border-radius:8px; }
+        #btn-start-simulation:hover { background: var(--accent-alert); color:#000; box-shadow:0 0 30px var(--accent-alert); }
+
+        /* Game container */
+        #game-container { width:80%; max-width:820px; background-color: rgba(20,20,20,0.95); border:1px solid #444; border-left:5px solid #d32f2f; border-radius:8px; padding:34px; box-shadow: 0 0 30px rgba(0,0,0,0.8); min-height:360px; display:none; flex-direction:column; opacity:0; z-index:500; }
+        .header { border-bottom:1px solid #555; padding-bottom:10px; margin-bottom:18px; display:flex; justify-content:space-between; font-size:0.9em; color:#aaa; }
+        .status-blink { color:#d32f2f; font-weight:700; animation:blink 1s infinite; }
+        #story-text { font-size:1.15em; line-height:1.6; white-space:pre-wrap; min-height:90px; color:#fff; }
+        #feedback-area { margin-bottom:14px; font-weight:700; padding:12px; border-radius:6px; display:none; font-size:1.03em; }
+        .feedback-success { background-color: rgba(46,125,50,0.12); border:1px solid #2e7d32; color:#a5d6a7; }
+        .feedback-error { background-color: rgba(198,40,40,0.12); border:1px solid #c62828; color:#ef9a9a; }
+
+        .choices { display:flex; flex-direction:column; gap:10px; margin-top:20px; opacity:0; transition:opacity 0.45s; }
+        .btn { background:transparent; border:1px dashed var(--yellow); color:var(--yellow); padding:12px; text-align:left; font-family:inherit; font-size:1.02em; cursor:pointer; transition:all .18s; border-radius:6px; }
+        .btn:hover { background:var(--yellow); color:#000; border-style:solid; transform:translateX(6px); }
+
+        .cursor { display:inline-block; width:10px; height:1em; background-color:#0f0; animation:blink 1s infinite; vertical-align:bottom; margin-left:6px; }
+
+        @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+        @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.04);opacity:0.9}100%{transform:scale(1)} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes borderPulse { 0%{box-shadow:0 0 0 0 rgba(255,61,0,.7)} 70%{box-shadow:0 0 0 15px rgba(255,61,0,0)} 100%{box-shadow:0 0 0 0 rgba(255,61,0,0)} }
     </style>
 </head>
 <body>
 
-    <div id="cover-screen">
+    <!-- TELA DE CAPA -->
+    <div id="cover-screen" aria-label="Tela de capa - clique para iniciar">
         <div class="rain-back"></div>
         <div class="rain-front"></div>
-        <div class="bolt"></div>
-        <div class="flash"></div>
-        <div class="content-box">
+        <div class="bolt" aria-hidden="true"></div>
+        <div class="flash" aria-hidden="true"></div>
+
+        <div class="content-box" role="button" tabindex="0">
             <h1>GRUPO 05</h1>
             <h2>Cenário: Desastre Ambiental</h2>
-            <ul class="members">
+            <ul class="members" aria-hidden="false">
                 <li>Pedro Cineli</li>
                 <li>Alvaro</li>
                 <li>Lucas Franklin</li>
@@ -153,25 +163,34 @@
         </div>
     </div>
 
-    <div class="background-fixed bg-prologue" id="main-bg" style="display:none;"></div>
-    <div id="disaster-layer"></div> <audio id="audio-prologue" preload="auto"></audio>
+    <!-- FUNDO PRINCIPAL -->
+    <div id="main-bg" class="background-fixed bg-prologue" style="display:none;"></div>
+
+    <!-- CAMADA DE EFEITOS (CHUVA/FOGO DINÂMICO) -->
+    <div id="disaster-layer" aria-hidden="true"></div>
+
+    <!-- ÁUDIOS -->
+    <!-- Observação: mantenha os arquivos audio1.mp3 .. audio7.mp3, noticia.mp3, audio.mp3 no mesmo diretório ou ajuste paths -->
+    <audio id="audio-prologue" preload="auto"></audio>
     <audio id="audio-news" src="noticia.mp3" preload="auto"></audio>
     <audio id="audio-game" src="audio.mp3" preload="auto"></audio>
 
-    <div id="prologue-container">
+    <!-- PRÓLOGO -->
+    <div id="prologue-container" role="region" aria-label="Prólogo técnico">
         <div id="prologue-title">INTRODUÇÃO TÉCNICA</div>
         <div id="prologue-text"></div>
-        
+
         <div class="nav-buttons">
-            <button class="btn-prologue" id="btn-prev-prologue" style="visibility: hidden;">Anterior</button>
-            
-            <button class="btn-prologue" id="btn-play-pause" style="min-width: 160px;">▶️ Play</button>
+            <button class="btn-prologue" id="btn-prev-prologue" style="visibility:hidden">Anterior</button>
+
+            <button class="btn-prologue" id="btn-play-pause" style="min-width:160px">▶️ Play</button>
 
             <button class="btn-prologue" id="btn-next-prologue">Próximo ➜</button>
         </div>
     </div>
 
-    <div id="intro-screen">
+    <!-- TELA DE ALERTA / INTRO -->
+    <div id="intro-screen" aria-hidden="true">
         <div id="intro-content">
             <h1>ATENÇÃO</h1>
             <h2>SITUAÇÃO DE DESASTRE EM ANDAMENTO</h2>
@@ -180,16 +199,20 @@
         </div>
     </div>
 
-    <div id="game-container">
+    <!-- CONTAINER DO JOGO -->
+    <div id="game-container" role="main" aria-label="Sala de situação">
         <div class="header">
             <span>SALA DE SITUAÇÃO: GRUPO 5</span>
             <span class="status-blink">● AO VIVO - PETRÓPOLIS</span>
         </div>
-        <div id="feedback-area"></div>
+
+        <div id="feedback-area" role="status"></div>
+
         <div id="text-container">
-            <span id="story-text"></span><span class="cursor"></span>
+            <span id="story-text"></span><span class="cursor" aria-hidden="true"></span>
         </div>
-        <div id="choices-container" class="choices"></div>
+
+        <div id="choices-container" class="choices" aria-live="polite"></div>
     </div>
 
 <script>
@@ -200,155 +223,108 @@
     const gameContainer = document.getElementById('game-container');
     const mainBg = document.getElementById('main-bg');
     const disasterLayer = document.getElementById('disaster-layer');
-    
-    // Players de Áudio
+
+    // Áudios
     const audioPrologue = document.getElementById('audio-prologue');
     const audioNews = document.getElementById('audio-news');
     const audioGame = document.getElementById('audio-game');
-    
+
     // Botões
     const btnPlayPause = document.getElementById('btn-play-pause');
     const btnNext = document.getElementById('btn-next-prologue');
     const btnPrev = document.getElementById('btn-prev-prologue');
     const btnStartSim = document.getElementById('btn-start-simulation');
 
-    // --- VARIÁVEIS DE CONTROLE ---
+    // Controle
     let currentPrologueIndex = 0;
-    let disasterInterval;
+    let disasterInterval = null;
     let currentStage = 'cover'; // 'cover' | 'prologue' | 'intro' | 'game'
 
-    // --- TRANSIÇÃO CAPA -> PRÓLOGO ---
-    coverScreen.addEventListener('click', () => {
-        // Ao clicar na capa, o navegador libera o áudio
-        
-        // 1. Fade out da capa
-        coverScreen.style.opacity = '0';
-        
-        setTimeout(() => {
-            coverScreen.style.display = 'none';
-            
-            // 2. Prepara e mostra o prólogo
-            mainBg.style.display = 'block'; // Mostra o fundo
-            prologueContainer.style.display = 'flex'; // Mostra container
-            currentStage = 'prologue';
-            
-            // 3. Inicia o prólogo
-            updatePrologue();
-            
-            // 4. Inicia áudio do primeiro slide (PAUSADO inicialmente, usuário clica Play)
-            if(prologueData[0].audio) {
-                // Carrega, mas NÃO toca automático para o usuário controlar
-                audioPrologue.src = prologueData[0].audio;
-                audioPrologue.load();
-                btnPlayPause.innerText = "▶️ Tocar Narração";
-            }
-        }, 1500);
-    });
-
-    // --- DADOS DO PRÓLOGO ---
+    // ---- DADOS DO PRÓLOGO ----
     const prologueData = [
-        {
-            title: "INÍCIO",
-            text: "\"Quando um desastre acontece — seja um deslizamento, um incêndio, um acidente químico ou uma enchente — o caos domina os primeiros minutos. Mas existe uma lógica médica por trás das decisões que salvam vidas. Hoje você vai entender como funciona a atuação do médico em cenários de desastre, desde os primeiros passos até as situações mais complexas.\"",
-            img: "https://www.pragmatismopolitico.com.br/wp-content/uploads/2018/05/acidente-cuba-e1527030296940.jpg",
-            audio: "audio1.mp3",
-            effectType: 'rain' 
-        },
-        {
-            title: "O PAPEL DO MÉDICO",
-            text: "\"Um desastre é qualquer evento que ultrapassa a capacidade normal de resposta do sistema de saúde. E, nesse contexto, o médico assume papéis que vão muito além do consultório. Ele precisa entender fisiologia, toxicologia, epidemiologia e, principalmente, como priorizar vidas quando não há recursos para todos. \n\nÉ aqui que entram conceitos como triagem, manejo inicial das vias aéreas, controle de hemorragias e tomada de decisão rápida.\"",
-            img: "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=1920&q=80",
-            audio: "audio2.mp3"
-        },
-        {
-            title: "TRIAGEM (MÉTODO START)",
-            text: "\"A triagem é o coração da resposta médica. É nela que o médico define quem precisa de intervenção imediata, quem pode esperar e quem, infelizmente, não tem chance real de sobrevivência dado o cenário.\n\nO método START baseia-se em:\n• Respiração – Se a vítima não respira após reposicionamento das vias aéreas, é classificada como preta. Se respira >30 incursões por minuto, é vermelha.)\n• Perfusão – Tempo de enchimento capilar >2 segundos sugere choque hipovolêmico pela perda aguda de volume.)\n• Estado mental – Incapacidade de seguir comandos indica possível hipóxia ou perfusão cerebral inadequada.)\"",
-            img: "https://images.unsplash.com/photo-1516574187841-69301976e49e?auto=format&fit=crop&w=1920&q=80",
-            audio: "audio3.mp3"
-        },
-        {
-            title: "SITUAÇÕES SIMPLES",
-            text: "\"Mesmo nos desastres, a maior parte das demandas médicas são simples: ferimentos leves, crises de ansiedade, desidratação, hipoglicemia.\n\nNesses casos, o médico atua como estabilizador: faz hidratação oral, sutura lacerações, prescreve analgésicos, controla picos hipertensivos induzidos por estresse e monitora pessoas vulneráveis, como gestantes e crianças.\"",
-            img: "https://www.saude.sp.gov.br/resources/hospital-leonor-mendes-de-barros/acesso-rapido/primeiros-socorros-em-caso-de-incendio.jpg",
-            audio: "audio4.mp3"
-        },
-        {
-            title: "ALTA COMPLEXIDADE",
-            text: "\"Em outros cenários, o médico enfrenta quadros críticos. Em incêndios, por exemplo, a prioridade é tratar hipoxemia e intoxicação por monóxido de carbono — que compete com o O₂ pela hemoglobina, causando hipóxia tecidual.\nEm deslizamentos, o risco é a síndrome do esmagamento, marcada por liberação de potássio e mioglobina para o sangue, podendo causar arritmias fatais e lesão renal aguda.).\n\nEm acidentes químicos, a conduta envolve descontaminação, neutralização e uso de antídotos específicos, como atropina e pralidoxima nos organofosforados.\n\nDecisões baseadas em fisiologia e protocolos.\"",
-            img: "https://ogimg.infoglobo.com.br/in/23946251-8e9-d10/FT1086A/GettyImages-56441651.jpg",
-            audio: "audio5.mp3",
-            effectType: 'fire'
-        },
-        {
-            title: "LOGÍSTICA E LIDERANÇA",
-            text: "\"O médico coordena fluxos e conversa com bombeiros e defesa civil.\n\nNo abrigo, o trabalho continua: vigilância epidemiológica, prevenção de surtos, vacinação e controle da água.\"",
-            img: "https://cdn.folhape.com.br/img/c/1200/900/dn_arquivo/2020/01/medico1.jpg",
-            audio: "audio6.mp3"
-        },
-        {
-            title: "A ESSÊNCIA",
-            text: "\"No fim, atuar em um desastre é equilibrar ciência, humanidade e estratégia.\n\nA medicina nesses cenários não é apenas técnica; exige também coragem e organização quando tudo ao redor parece destruído.\"",
-            img: "https://blog.unyleyamed.com.br/wp-content/uploads/2023/09/shutterstock_661890763-scaled.webp",
-            audio: "audio7.mp3"
-        }
+        { title:"INÍCIO", text:`"Quando um desastre acontece — seja um deslizamento, um incêndio, um acidente químico ou uma enchente — o caos domina os primeiros minutos. Mas existe uma lógica médica por trás das decisões que salvam vidas. Hoje você vai entender como funciona a atuação do médico em cenários de desastre, desde os primeiros passos até as situações mais complexas."`, img:"https://www.pragmatismopolitico.com.br/wp-content/uploads/2018/05/acidente-cuba-e1527030296940.jpg", audio:"audio1.mp3", effectType:'rain' },
+        { title:"O PAPEL DO MÉDICO", text:`"Um desastre é qualquer evento que ultrapassa a capacidade normal de resposta do sistema de saúde. E, nesse contexto, o médico assume papéis que vão muito além do consultório. Ele precisa entender fisiologia, toxicologia, epidemiologia e, principalmente, como priorizar vidas quando não há recursos para todos.\n\nÉ aqui que entram conceitos como triagem, manejo inicial das vias aéreas, controle de hemorragias e tomada de decisão rápida."`, img:"https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=1920&q=80", audio:"audio2.mp3" },
+        { title:"TRIAGEM (MÉTODO START)", text:`"A triagem é o coração da resposta médica. É nela que o médico define quem precisa de intervenção imediata, quem pode esperar e quem, infelizmente, não tem chance real de sobrevivência dado o cenário.\n\nO método START baseia-se em:\n• Respiração – Se a vítima não respira após reposicionamento das vias aéreas, é classificada como preta. Se respira >30 incursões por minuto, é vermelha.)\n• Perfusão – Tempo de enchimento capilar >2 segundos sugere choque hipovolêmico pela perda aguda de volume.)\n• Estado mental – Incapacidade de seguir comandos indica possível hipóxia ou perfusão cerebral inadequada.)"`, img:"https://images.unsplash.com/photo-1516574187841-69301976e49e?auto=format&fit=crop&w=1920&q=80", audio:"audio3.mp3" },
+        { title:"SITUAÇÕES SIMPLES", text:`"Mesmo nos desastres, a maior parte das demandas médicas são simples: ferimentos leves, crises de ansiedade, desidratação, hipoglicemia.\n\nNesses casos, o médico atua como estabilizador: faz hidratação oral, sutura lacerações, prescreve analgésicos, controla picos hipertensivos induzidos por estresse e monitora pessoas vulneráveis, como gestantes e crianças."`, img:"https://www.saude.sp.gov.br/resources/hospital-leonor-mendes-de-barros/acesso-rapido/primeiros-socorros-em-caso-de-incendio.jpg", audio:"audio4.mp3" },
+        { title:"ALTA COMPLEXIDADE", text:`"Em outros cenários, o médico enfrenta quadros críticos. Em incêndios, por exemplo, a prioridade é tratar hipoxemia e intoxicação por monóxido de carbono — que compete com o O₂ pela hemoglobina, causando hipóxia tecidual.\nEm deslizamentos, o risco é a síndrome do esmagamento, marcada por liberação de potássio e mioglobina para o sangue, podendo causar arritmias fatais e lesão renal aguda.).\n\nEm acidentes químicos, a conduta envolve descontaminação, neutralização e uso de antídotos específicos, como atropina e pralidoxima nos organofosforados.\n\nDecisões baseadas em fisiologia e protocolos."`, img:"https://ogimg.infoglobo.com.br/in/23946251-8e9-d10/FT1086A/GettyImages-56441651.jpg", audio:"audio5.mp3", effectType:'fire' },
+        { title:"LOGÍSTICA E LIDERANÇA", text:`"O médico coordena fluxos e conversa com bombeiros e defesa civil.\n\nNo abrigo, o trabalho continua: vigilância epidemiológica, prevenção de surtos, vacinação e controle da água."`, img:"https://cdn.folhape.com.br/img/c/1200/900/dn_arquivo/2020/01/medico1.jpg", audio:"audio6.mp3" },
+        { title:"A ESSÊNCIA", text:`"No fim, atuar em um desastre é equilibrar ciência, humanidade e estratégia.\n\nA medicina nesses cenários não é apenas técnica; exige também coragem e organização quando tudo ao redor parece destruído."`, img:"https://blog.unyleyamed.com.br/wp-content/uploads/2023/09/shutterstock_661890763-scaled.webp", audio:"audio7.mp3" }
     ];
 
-    // --- EFEITOS VISUAIS JS ---
-    function startDisasterEffect(type) {
+    // --- EFEITOS VISUAIS (CHUVA / FOGO DINÂMICO) ---
+    function startDisasterEffect(type){
+        stopDisasterEffect();
         disasterLayer.style.display = 'block';
-        disasterLayer.innerHTML = '';
-        clearInterval(disasterInterval);
-
-        if (type === 'rain') {
-            disasterInterval = setInterval(() => {
-                for(let i=0; i<4; i++) {
+        if(type === 'rain'){
+            disasterInterval = setInterval(()=> {
+                for(let i=0;i<4;i++){
                     const drop = document.createElement('div');
                     drop.className = 'rain-js';
-                    drop.style.left = Math.random() * 100 + 'vw';
-                    drop.style.height = (Math.random() * 20 + 30) + 'px';
-                    drop.style.animation = `rain-fall ${Math.random() * 0.3 + 0.5}s linear`;
+                    const left = Math.random()*100;
+                    const h = Math.random()*30 + 20;
+                    drop.style.left = left + 'vw';
+                    drop.style.top = (-Math.random()*30 - 40) + 'vh';
+                    drop.style.height = h + 'px';
+                    drop.style.width = '2px';
+                    drop.style.opacity = (Math.random()*0.7 + 0.2).toString();
+                    drop.style.animation = `rain-fall ${Math.random()*0.5 + 0.6}s linear`;
                     disasterLayer.appendChild(drop);
-                    setTimeout(() => { drop.remove(); }, 1000);
+                    setTimeout(()=> drop.remove(), 1200);
                 }
-            }, 50);
-        } else if (type === 'fire') {
-            disasterInterval = setInterval(() => {
-                for(let i=0; i<3; i++) {
+            }, 60);
+        } else if(type === 'fire'){
+            disasterInterval = setInterval(()=> {
+                for(let i=0;i<3;i++){
                     const ember = document.createElement('div');
                     ember.className = 'fire-particle';
-                    ember.style.left = Math.random() * 100 + 'vw';
-                    ember.style.width = (Math.random() * 20 + 5) + 'px';
-                    ember.style.height = ember.style.width;
-                    const color = Math.random() > 0.5 ? 'rgba(255,80,0,0.8)' : 'rgba(255,200,0,0.6)';
+                    const left = Math.random()*100;
+                    const size = Math.random()*20 + 6;
+                    ember.style.left = left + 'vw';
+                    ember.style.bottom = (-Math.random()*40 - 20) + 'px';
+                    ember.style.width = size + 'px';
+                    ember.style.height = size + 'px';
+                    const color = Math.random()>0.5 ? 'rgba(255,80,0,0.85)' : 'rgba(255,200,0,0.6)';
                     ember.style.background = `radial-gradient(circle, ${color} 0%, rgba(255,0,0,0) 70%)`;
-                    ember.style.animation = `rise ${Math.random() * 1.5 + 1}s ease-out forwards`;
+                    ember.style.animation = `rise ${Math.random()*1.2 + 0.9}s ease-out forwards`;
                     disasterLayer.appendChild(ember);
-                    setTimeout(() => { ember.remove(); }, 2500);
+                    setTimeout(()=> ember.remove(), 2600);
                 }
-            }, 80);
+            }, 90);
         }
     }
-
-    function stopDisasterEffect() {
+    function stopDisasterEffect(){
         clearInterval(disasterInterval);
         disasterLayer.innerHTML = '';
         disasterLayer.style.display = 'none';
     }
 
-    // --- CONTROLE DE ÁUDIO ---
-    function manageAudioState(audioFile, shouldPlay = true) {
+    // --- CONTROLE DE ÁUDIO / UTILS (fadeIn) ---
+    function fadeInAudio(audioElement, duration = 800){
+        try {
+            audioElement.volume = 0;
+            const step = 50;
+            const steps = Math.max(1, Math.floor(duration / step));
+            let current = 0;
+            const iv = setInterval(()=> {
+                current++;
+                audioElement.volume = Math.min(1, (current/steps));
+                if(current >= steps){ clearInterval(iv); audioElement.volume = 1; }
+            }, step);
+        } catch(e){ console.warn("fadeInAudio:", e); }
+    }
+
+    // Gerencia narração do prólogo: troca arquivo e controla play/pause
+    function manageAudioState(audioFile, shouldPlay = true){
         if (!audioPrologue.paused) audioPrologue.pause();
-        
         if (audioPrologue.getAttribute('src') !== audioFile) {
             audioPrologue.src = audioFile;
             audioPrologue.load();
         }
-
         if (shouldPlay) {
-            audioPrologue.play().then(() => {
+            audioPrologue.play().then(()=> {
                 btnPlayPause.innerText = "⏸️ Pausar Narração";
-            }).catch(e => {
-                console.log("Autoplay blocked inside prologue");
+            }).catch(e=>{
+                console.log("Autoplay bloqueado (prologue):", e);
                 btnPlayPause.innerText = "▶️ Tocar Narração";
             });
         } else {
@@ -356,7 +332,8 @@
         }
     }
 
-    function updatePrologue() {
+    // --- ATUALIZA PRÓLOGO ---
+    function updatePrologue(){
         const data = prologueData[currentPrologueIndex];
         document.getElementById('prologue-title').innerText = data.title;
         document.getElementById('prologue-text').innerText = data.text;
@@ -367,86 +344,127 @@
         else stopDisasterEffect();
 
         btnPrev.style.visibility = currentPrologueIndex === 0 ? 'hidden' : 'visible';
-        
+
         if (currentPrologueIndex === prologueData.length - 1) {
             btnNext.innerText = "IR PARA AÇÃO ⚠";
-            btnNext.style.borderColor = "#ff3d00";
-            btnNext.style.color = "#ff3d00";
+            btnNext.classList.add('btn-danger');
         } else {
             btnNext.innerText = "Próximo ➜";
-            btnNext.style.borderColor = "#2196F3";
-            btnNext.style.color = "#2196F3";
+            btnNext.classList.remove('btn-danger');
         }
-        
-        // Se for troca de slide (e não o primeiro), toca automático
-        if(currentPrologueIndex > 0) manageAudioState(data.audio, true);
+
+        // Se for troca de slide (e não o primeiro), toca a narração automaticamente
+        if(currentPrologueIndex > 0) manageAudioState(prologueData[currentPrologueIndex].audio, true);
     }
 
+    // --- INTERAÇÕES: capa -> prólogo ---
+    function openPrologueFromCover(){
+        // Fade out da capa e mostra prólogo
+        coverScreen.style.opacity = '0';
+        setTimeout(()=> {
+            coverScreen.style.display = 'none';
+            mainBg.style.display = 'block';
+            prologueContainer.style.display = 'flex';
+            currentStage = 'prologue';
+            updatePrologue();
+
+            // Carrega audio do primeiro slide (mas não toca)
+            if(prologueData[0].audio){
+                audioPrologue.src = prologueData[0].audio;
+                audioPrologue.load();
+                btnPlayPause.innerText = "▶️ Tocar Narração";
+            }
+        }, 550);
+    }
+
+    coverScreen.addEventListener('click', openPrologueFromCover);
+    coverScreen.addEventListener('keydown', (e)=> { if(e.key === 'Enter' || e.key === ' ') openPrologueFromCover(); });
+
+    // --- EVENTOS DOS BOTÕES DO PRÓLOGO ---
     btnNext.addEventListener('click', () => {
         if (currentPrologueIndex < prologueData.length - 1) {
             currentPrologueIndex++;
             updatePrologue();
         } else {
-            // FIM DO PRÓLOGO -> ALERTA
+            // FIM DO PRÓLOGO -> MOSTRA TELA DE ALERTA (INTRO)
             stopDisasterEffect();
-            audioPrologue.pause();
+            try { audioPrologue.pause(); } catch(e){}
             currentStage = 'intro';
-            
-            // TOCA NOTÍCIA IMEDIATAMENTE
+
+            // Reinicia e tenta tocar a notícia imediatamente (há interação do usuário)
             audioNews.currentTime = 0;
-            audioNews.play().catch(e => console.error("Erro noticia:", e));
-            
+            audioNews.play().then(()=> {
+                // Se quiser fade-in, descomente a linha abaixo
+                fadeInAudio(audioNews, 900);
+                console.log("Áudio da notícia iniciado.");
+            }).catch(e => {
+                console.warn("Reprodução da notícia bloqueada (por política do navegador):", e);
+            });
+
+            // Troca telas e mostra intro
             prologueContainer.style.display = 'none';
             mainBg.style.backgroundImage = "url('img1.jpg')";
             mainBg.className = "background-fixed bg-game";
             introScreen.style.display = 'flex';
-            setTimeout(() => { introScreen.style.opacity = '1'; }, 50);
+            setTimeout(()=> { introScreen.style.opacity = '1'; introScreen.setAttribute('aria-hidden','false'); }, 50);
         }
     });
 
     btnPrev.addEventListener('click', () => {
-        if (currentPrologueIndex > 0) {
+        if(currentPrologueIndex > 0){
             currentPrologueIndex--;
             updatePrologue();
         }
     });
 
     btnPlayPause.addEventListener('click', () => {
+        // Se não há src definido, carrega do índice atual
+        const data = prologueData[currentPrologueIndex];
+        if(!audioPrologue.getAttribute('src') && data && data.audio){
+            audioPrologue.src = data.audio;
+            audioPrologue.load();
+        }
+
         if (audioPrologue.paused) {
-            audioPrologue.play();
-            btnPlayPause.innerText = "⏸️ Pausar Narração";
+            audioPrologue.play().then(()=> {
+                btnPlayPause.innerText = "⏸️ Pausar Narração";
+            }).catch(e=>{
+                console.warn("Erro ao tentar tocar narração:", e);
+            });
         } else {
             audioPrologue.pause();
             btnPlayPause.innerText = "▶️ Tocar Narração";
         }
     });
 
-    // --- JOGO ---
+    // --- INICIAR SIMULAÇÃO (DO INTRO -> JOGO) ---
     btnStartSim.addEventListener('click', () => {
-        audioNews.pause();
-        
+        try { audioNews.pause(); } catch(e){}
         currentStage = 'game';
+
+        // Toca áudio do jogo com fade e ativa efeitos
         audioGame.currentTime = 0;
-        audioGame.play().catch(e => console.error("Erro game audio:", e));
-        
-        // Ativa TEMPESTADE (Chuva) no jogo
+        audioGame.play().then(()=> {
+            fadeInAudio(audioGame, 900);
+        }).catch(e => console.warn("Erro game audio:", e));
+
         startDisasterEffect('rain');
 
-        introScreen.style.transition = "opacity 1s";
+        introScreen.style.transition = "opacity .9s";
         introScreen.style.opacity = '0';
-
-        setTimeout(() => {
+        setTimeout(()=> {
             introScreen.style.display = 'none';
+            introScreen.setAttribute('aria-hidden','true');
             gameContainer.style.display = 'flex';
-            setTimeout(() => {
+            setTimeout(()=> {
                 gameContainer.style.opacity = '1';
-                gameContainer.style.animation = 'fadeIn 1s ease-out';
+                gameContainer.style.animation = 'fadeIn .6s ease-out';
                 goTo('start');
-            }, 100);
-        }, 1000);
+            }, 120);
+        }, 800);
     });
 
-    // --- MOTOR DO JOGO (SEU TEXTO) ---
+    // --- MOTOR DO JOGO (CENAS) ---
     const story = {
         "start": { text: "[06:05] CONEXÃO ESTABELECIDA...\n\nO deslizamento acabou de acontecer. Qual sua prioridade?", choices: [{ text: "A - Ir para Zona de Impacto", target: "erro_gestao" }, { text: "B - Focar na Gestão", target: "fase_2" }] },
         "erro_gestao": { text: "Você ficou incomunicável e abdicou da gestão.", feedback: { type: "error", msg: "ERRO DE GESTÃO: Microgerenciamento." }, choices: [{ text: "Reiniciar", target: "start" }] },
@@ -462,34 +480,50 @@
     const textElement = document.getElementById('story-text');
     const choicesContainer = document.getElementById('choices-container');
     const feedbackArea = document.getElementById('feedback-area');
-    
+
+    // Typewriter simples
     function typeWriter(text, i, fnCallback) {
         if (i < text.length) {
             textElement.innerHTML = text.substring(0, i+1) + '<span class="cursor"></span>';
-            setTimeout(() => typeWriter(text, i + 1, fnCallback), 15);
-        } else { if (fnCallback) fnCallback(); }
+            setTimeout(() => typeWriter(text, i + 1, fnCallback), 14);
+        } else {
+            if (fnCallback) fnCallback();
+        }
     }
 
-    function goTo(sceneId) {
+    function goTo(sceneId){
         const scene = story[sceneId];
         textElement.innerHTML = ""; choicesContainer.innerHTML = ""; choicesContainer.style.opacity = "0"; feedbackArea.style.display = "none";
-        if (scene.feedback) {
+
+        if(scene.feedback){
             feedbackArea.style.display = "block";
             feedbackArea.className = scene.feedback.type === 'success' ? 'feedback-success' : 'feedback-error';
             feedbackArea.innerText = (scene.feedback.type === 'success' ? '👨‍⚕️👍 ' : '👨‍⚕️👎 ') + scene.feedback.msg;
         }
-        typeWriter(scene.text, 0, () => renderButtons(scene.choices));
+
+        typeWriter(scene.text, 0, ()=> renderButtons(scene.choices));
     }
 
-    function renderButtons(choices) {
+    function renderButtons(choices){
         choices.forEach(choice => {
             const btn = document.createElement('button');
-            btn.innerText = choice.text; btn.className = 'btn';
-            btn.onclick = () => goTo(choice.target);
+            btn.innerText = choice.text;
+            btn.className = 'btn';
+            btn.onclick = ()=> goTo(choice.target);
             choicesContainer.appendChild(btn);
         });
-        setTimeout(() => choicesContainer.style.opacity = "1", 100);
+        setTimeout(()=> choicesContainer.style.opacity = "1", 100);
     }
+
+    // Acessibilidade: permitir navegação por teclado no container de escolhas
+    choicesContainer.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' && document.activeElement && document.activeElement.classList.contains('btn')){
+            document.activeElement.click();
+        }
+    });
+
+    // Inicializa (caso queira abrir direto sem capa, descomente a linha abaixo)
+    // openPrologueFromCover();
 </script>
 </body>
 </html>
